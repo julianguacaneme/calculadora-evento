@@ -1,0 +1,53 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f4f9;
+  color: #333;
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+}
+h1 {
+  text-align: center;
+}
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+label {
+  font-weight: bold;
+}
+input[type="number"],
+input[type="email"] {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  box-sizing: border-box;
+}
+.full-width {
+  grid-column: span 2;
+}
+button {
+  background-color: #0073aa;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  margin-top: 10px;
+}
+button:hover {
+  background-color: #005d8f;
+}
+.results {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+.results h2 {
+  margin-top: 0;
+}
+.result-item {
+  margin: 10px 0;
+}

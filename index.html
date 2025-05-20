@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculadora de finanzas presentaciones Mambo Candela</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h1>Calculadora de finanzas presentaciones Mambo Candela</h1>
+  <div class="grid">
+    <div class="full-width"><strong>Ingresos por punto de venta</strong></div>
+    <div><label for="daviplata">DAVIPLATA</label><input type="number" id="daviplata" value="0"></div>
+    <div><label for="nequi">NEQUI</label><input type="number" id="nequi" value="0"></div>
+    <div><label for="datafono">DATÁFONO</label><input type="number" id="datafono" value="0"></div>
+    <div><label for="efectivo">EFECTIVO</label><input type="number" id="efectivo" value="0"></div>
+
+    <div class="full-width"><strong>Datos de manillas y cover</strong></div>
+    <div><label for="vendidas">Manillas vendidas</label><input type="number" id="vendidas" value="0" max="200"></div>
+    <div><label for="precioCover">Precio por entrada/cover</label><input type="number" id="precioCover" value="0"></div>
+
+    <div class="full-width"><strong>Otros datos</strong></div>
+    <div><label for="musicos">Cantidad de músicos</label><input type="number" id="musicos" value="1" min="1"></div>
+
+    <div class="full-width">
+      <label for="email">Enviar informe a (correo electrónico)</label>
+      <input type="email" id="email" placeholder="ejemplo@dominio.com">
+    </div>
+  </div>
+
+  <button id="btnCalcular">Calcular</button>
+
+  <div class="results" id="resultados" style="display:none">
+    <h2>Resultados</h2>
+    <div id="output"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
