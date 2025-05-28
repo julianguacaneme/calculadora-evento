@@ -1,53 +1,117 @@
+/* Paleta extraída del logo: 
+   – Rojo principal:  #C8102E
+   – Negro texto:    #333333
+   – Blanco fondo:   #FFFFFF
+*/
+
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Montserrat:wght@600;800&display=swap');
+
+:root {
+  --color-primary: #C8102E;
+  --color-secondary: #333333;
+  --color-bg: #FFFFFF;
+  --font-heading: 'Montserrat', sans-serif;
+  --font-body: 'Lato', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
 body {
-  font-family: Arial, sans-serif;
-  background: #f4f4f9;
-  color: #333;
-  max-width: 900px;
-  margin: auto;
+  margin: 0;
   padding: 20px;
+  background: var(--color-bg);
+  color: var(--color-secondary);
+  font-family: var(--font-body);
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
 }
-h1 {
+
+.site-header {
   text-align: center;
+  margin-bottom: 30px;
 }
+
+.logo {
+  max-width: 200px;
+  height: auto;
+}
+
+h1 {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  text-align: center;
+  color: var(--color-primary);
+  margin-top: 0;
+}
+
 .grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 15px;
   margin-bottom: 30px;
 }
-label {
-  font-weight: bold;
+
+.full-width {
+  grid-column: span 2;
 }
+
+label {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  display: block;
+  margin-bottom: 4px;
+  color: var(--color-secondary);
+}
+
 input[type="number"],
 input[type="email"] {
   width: 100%;
   padding: 8px;
-  margin-top: 5px;
-  box-sizing: border-box;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-family: var(--font-body);
 }
-.full-width {
-  grid-column: span 2;
-}
+
 button {
-  background-color: #0073aa;
-  color: white;
-  padding: 10px 20px;
+  display: block;
+  width: 100%;
+  background-color: var(--color-primary);
+  color: #fff;
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 700;
+  padding: 12px;
   border: none;
+  border-radius: 6px;
   cursor: pointer;
-  margin-top: 10px;
+  margin-bottom: 30px;
+  transition: background-color 0.2s;
 }
+
 button:hover {
-  background-color: #005d8f;
+  background-color: #a10f25; /* rojo más oscuro al hover */
 }
+
 .results {
-  background: white;
+  background: var(--color-bg);
   padding: 20px;
   border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  border: 1px solid #eee;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
+
 .results h2 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: var(--color-primary);
   margin-top: 0;
 }
+
 .result-item {
   margin: 10px 0;
+  font-family: var(--font-body);
 }
