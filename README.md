@@ -69,6 +69,8 @@ calculadora-evento/
 
 ---
 
+* "Despliegue automático activado 🚀"
+
 ### 💡 Créditos
 
 Desarrollado por [Julián Guacaneme](https://julianguacaneme.com) para Mambo Candela.
