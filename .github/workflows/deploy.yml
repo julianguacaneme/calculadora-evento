@@ -1,0 +1,25 @@
+name: 🚀 Deploy automático vía FTP
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  ftp-deploy:
+    name: 📦 Deploy al servidor web
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🔍 Checkout del repositorio
+        uses: actions/checkout@v3
+
+      - name: 📤 Subir archivos por FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: ${{ secrets.FTP_REMOTE_DIR }}
+          protocol: ftp
+          log-level: verbose
