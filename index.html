@@ -3,50 +3,63 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Calculadora de finanzas presentaciones Mambo Candela</title>
-
-  <!-- Google Fonts: Montserrat (titulares) + Lato (cuerpo) -->
+  <title>Calculadora de finanzas Mambo Candela</title>
   <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Montserrat:wght@600;800&display=swap" rel="stylesheet">
-
   <link rel="stylesheet" href="styles.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" xintegrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" xintegrity="sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKNRRhy5X5AAOnx5S09ydFYWWNSfcEqDTTHgtNA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
 </head>
 <body>
-  <!-- Cabecera con logo -->
   <header class="site-header">
     <a href="https://julianguacaneme.com/mambo-candela" target="_blank" rel="noopener">
       <img src="https://julianguacaneme.com/wp-content/uploads/2025/02/Logo-Mambo-Candela-2025-1-e1739552848127.png"
            alt="Logo Mambo Candela"
-           class="logo">
+           class="logo"
+           onerror="this.onerror=null; this.src='https://placehold.co/200x100/C8102E/FFFFFF?text=Mambo+Candela';">
     </a>
   </header>
 
   <h1>Calculadora de finanzas</h1>
 
   <div class="grid">
-    <div class="full-width"><strong>Ingresos por punto de venta</strong></div>
-    <div><label for="daviplata">DAVIPLATA</label><input type="number" id="daviplata" value="0"></div>
-    <div><label for="nequi">NEQUI</label><input type="number" id="nequi" value="0"></div>
-    <div><label for="datafono">DATÁFONO</label><input type="number" id="datafono" value="0"></div>
-    <div><label for="efectivo">EFECTIVO</label><input type="number" id="efectivo" value="0"></div>
+    <div class="full-width section-title"><strong> INGRESOS Y CAJA </strong></div>
+    <div><label for="cajaMenorInicial">Caja Menor Inicial (Base)</label><input type="number" id="cajaMenorInicial" value="150000" min="0" step="1000"></div>
+    <div><label for="efectivoFinal">Total Efectivo Contado al Final</label><input type="number" id="efectivoFinal" value="0" min="0" step="1000"></div>
+    <div><label for="daviplata">Ingresos por DAVIPLATA</label><input type="number" id="daviplata" value="0" min="0" step="1000"></div>
+    <div><label for="nequi">Ingresos por NEQUI</label><input type="number" id="nequi" value="0" min="0" step="1000"></div>
+    <div><label for="datafono">Ingresos por DATÁFONO (Bruto)</label><input type="number" id="datafono" value="0" min="0" step="1000"></div>
 
-    <div class="full-width"><strong>Datos de manillas y cover</strong></div>
-    <div><label for="vendidas">Manillas vendidas</label><input type="number" id="vendidas" value="0" max="200"></div>
-    <div><label for="precioCover">Precio por entrada/cover</label><input type="number" id="precioCover" value="0"></div>
+    <div class="full-width section-title"><strong> DATOS DE MANILLAS Y COVER </strong></div>
+    <div><label for="vendidas">Manillas vendidas</label><input type="number" id="vendidas" value="0" min="0" max="500"></div> <div><label for="precioCover">Precio por entrada/cover</label><input type="number" id="precioCover" value="0" min="0" step="1000"></div>
 
-    <div class="full-width"><strong>Otros datos</strong></div>
+    <div class="full-width section-title"><strong> OTROS DATOS </strong></div>
     <div><label for="musicos">Cantidad de músicos</label><input type="number" id="musicos" value="1" min="1"></div>
-
-    <div class="full-width">
-      <label for="email">Enviar informe a (correo electrónico)</label>
-      <input type="email" id="email" placeholder="ejemplo@dominio.com">
+    <div>
+        <label for="nombreEvento">Nombre del Evento (Opcional)</label>
+        <input type="text" id="nombreEvento" placeholder="Ej: Concierto Bar XYZ">
     </div>
   </div>
 
-  <button id="btnCalcular">Calcular</button>
+  <button id="btnCalcular" class="main-action-button">Calcular y Generar Informe</button>
+  <div id="feedbackMessage" class="feedback-message" style="display:none;"></div>
 
   <div class="results" id="resultados" style="display:none">
-    <h2>Resultados</h2>
-    <div id="output"></div>
+    <h2>Resultados del Evento: <span id="nombreEventoResultado"></span></h2>
+    <div id="output" class="report-content">
+      </div>
+
+    <div class="report-actions">
+      <h3 class="section-title">Acciones del Informe</h3>
+      <div class="action-buttons-grid">
+        <button id="btnEnviarCorreo"><img src="https://img.icons8.com/ios-glyphs/30/ffffff/email.png" alt="[Icono de correo]" class="icon"/> Enviar por Correo</button>
+        <button id="btnDescargarPDF"><img src="https://img.icons8.com/ios-glyphs/30/ffffff/pdf.png" alt="[Icono de PDF]" class="icon"/> Descargar PDF</button>
+        <button id="btnImprimir"><img src="https://img.icons8.com/ios-glyphs/30/ffffff/print.png" alt="[Icono de imprimir]" class="icon"/> Imprimir Informe</button>
+        <button id="btnCompartirWhatsApp"><img src="https://img.icons8.com/ios-glyphs/30/ffffff/whatsapp.png" alt="[Icono de WhatsApp]" class="icon"/> Compartir por WhatsApp</button>
+        <button id="btnGuardarGoogleSheets" disabled title="Funcionalidad en desarrollo"><img src="https://img.icons8.com/ios-glyphs/30/cccccc/google-sheets.png" alt="[Icono de Google Sheets]" class="icon"/> Guardar en Google Sheets</button>
+        <button id="btnGuardarDB" disabled title="Funcionalidad en desarrollo"><img src="https://img.icons8.com/ios-glyphs/30/cccccc/database.png" alt="[Icono de base de datos]" class="icon"/> Guardar en Base de Datos</button>
+      </div>
+    </div>
   </div>
 
   <script src="script.js"></script>

@@ -69,7 +69,7 @@ calculadora-evento/
 
 ---
 
-* "Despliegue automático activado 🚀"
+* "Despliegue automático activado 🚀 corregido"
 
 ### 💡 Créditos
 
