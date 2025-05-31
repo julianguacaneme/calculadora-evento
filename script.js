@@ -68,13 +68,14 @@ function calcularYGenerarInforme() {
   const costoTotalPaqueteManillas = 52000;
   const costoUnitarioManilla = costoTotalPaqueteManillas / 200;
   const comisionDatafonoPct = 5;
+  const costoTransferencia = 9000;
   const reservaBandaPct = 7;
   const honorarioRecaudadorPct = 7;
 
   // --- III. CÁLCULOS FINANCIEROS ---
   const efectivoRecaudadoDelEvento = totalEfectivoContadoAlFinal - cajaMenorInicial;
   const valorComisionDatafono = ingresosDatafonoBruto * (comisionDatafonoPct / 100);
-  const ingresosDatafonoNeto = ingresosDatafonoBruto - valorComisionDatafono;
+  const ingresosDatafonoNeto = ingresosDatafonoBruto - valorComisionDatafono - costoTransferencia;
   const totalIngresosBrutosEvento = ingresosDatafonoNeto + ingresosDaviplata + ingresosNequi + efectivoRecaudadoDelEvento;
   const gastoManillasVendidas = costoUnitarioManilla * manillasVendidas;
   const gastosOperativosTotales = costoEnsayo + gastoManillasVendidas;
@@ -85,7 +86,7 @@ function calcularYGenerarInforme() {
   const ingresoNetoDisponibleMusicos = ingresoDespuesReserva - montoHonorarioRecaudador;
   const honorarioPorMusico = numeroMusicos > 0 && ingresoNetoDisponibleMusicos > 0 ? ingresoNetoDisponibleMusicos / numeroMusicos : 0;
   const ingresoEsperadoPorCover = manillasVendidas * precioCover;
-  const diferenciaIngresoEsperadoVsReal = totalIngresosBrutosEvento - ingresoEsperadoPorCover;
+  const diferenciaIngresoEsperadoVsReal = ingresoEsperadoPorCover - totalIngresosBrutosEvento;
 
   // Almacenar los resultados para usarlos en otras funciones
   informeCalculado = {
@@ -109,36 +110,37 @@ function calcularYGenerarInforme() {
   
   let htmlInforme = '';
   htmlInforme += `<div class="report-section"><h3>Flujo de Caja y Efectivo:</h3>`;
-  htmlInforme += `<p><strong>A. Caja Menor Inicial (Base entregada):</strong> $${formatoMoneda(cajaMenorInicial)}</p>`;
-  htmlInforme += `<p><strong>B. Total Efectivo Contado al Finalizar:</strong> $${formatoMoneda(totalEfectivoContadoAlFinal)}</p>`;
-  htmlInforme += `<p><strong>C. Efectivo Recaudado en el Evento (B - A):</strong> $${formatoMoneda(efectivoRecaudadoDelEvento)}</p>`;
-  htmlInforme += `<p><strong>D. Devolución de Caja Menor Inicial:</strong> $${formatoMoneda(cajaMenorInicial)} (Este monto se retorna de B)</p></div>`;
+  htmlInforme += `<p><strong>A. Caja Menor Inicial (Base entregada):</strong> ${formatoMoneda(cajaMenorInicial)}</p>`;
+  htmlInforme += `<p><strong>B. Total Efectivo Contado al Finalizar:</strong> ${formatoMoneda(totalEfectivoContadoAlFinal)}</p>`;
+  htmlInforme += `<p><strong>C. Efectivo Recaudado en el Evento (B - A):</strong> ${formatoMoneda(efectivoRecaudadoDelEvento)}</p>`;
+  htmlInforme += `<p><strong>D. Devolución de Caja Menor Inicial:</strong> ${formatoMoneda(cajaMenorInicial)} (Este monto se retorna de B)</p></div>`;
   
   htmlInforme += `<div class="report-section"><h3>Ingresos del Evento:</h3>`;
-  htmlInforme += `<p>1. Ingresos por Datáfono (Bruto): $${formatoMoneda(ingresosDatafonoBruto)}</p>`;
-  htmlInforme += `<p>&nbsp;&nbsp;&nbsp;Comisión Datáfono (${comisionDatafonoPct}%): -$${formatoMoneda(valorComisionDatafono)}</p>`;
-  htmlInforme += `<p class="subtotal">&nbsp;&nbsp;&nbsp;<strong>Neto Datáfono:</strong> $${formatoMoneda(ingresosDatafonoNeto)}</p>`;
-  htmlInforme += `<p>2. Ingresos por Daviplata: $${formatoMoneda(ingresosDaviplata)}</p>`;
-  htmlInforme += `<p>3. Ingresos por Nequi: $${formatoMoneda(ingresosNequi)}</p>`;
-  htmlInforme += `<p>4. Efectivo Recaudado en el Evento (ver C arriba): $${formatoMoneda(efectivoRecaudadoDelEvento)}</p>`;
-  htmlInforme += `<p class="total-emphasis"><strong>TOTAL INGRESOS BRUTOS DEL EVENTO:</strong> $${formatoMoneda(totalIngresosBrutosEvento)}</p></div>`;
+  htmlInforme += `<p>1. Ingresos por Datáfono (Bruto): ${formatoMoneda(ingresosDatafonoBruto)}</p>`;
+  htmlInforme += `<p>&nbsp;&nbsp;&nbsp;Comisión Datáfono (${comisionDatafonoPct}%): -${formatoMoneda(valorComisionDatafono)}</p>`;
+  htmlInforme += `<p>&nbsp;&nbsp;&nbsp;Costo Transferencia: -${formatoMoneda(costoTransferencia)}</p>`;
+  htmlInforme += `<p class="subtotal">&nbsp;&nbsp;&nbsp;<strong>Neto Datáfono:</strong> ${formatoMoneda(ingresosDatafonoNeto)}</p>`;
+  htmlInforme += `<p>2. Ingresos por Daviplata: ${formatoMoneda(ingresosDaviplata)}</p>`;
+  htmlInforme += `<p>3. Ingresos por Nequi: ${formatoMoneda(ingresosNequi)}</p>`;
+  htmlInforme += `<p>4. Efectivo Recaudado en el Evento (ver C arriba): ${formatoMoneda(efectivoRecaudadoDelEvento)}</p>`;
+  htmlInforme += `<p class="total-emphasis"><strong>TOTAL INGRESOS BRUTOS DEL EVENTO:</strong> ${formatoMoneda(totalIngresosBrutosEvento)}</p></div>`;
 
   htmlInforme += `<div class="report-section"><h3>Gastos y Distribución:</h3>`;
-  htmlInforme += `<p>5. Gasto Sala de Ensayo: -$${formatoMoneda(costoEnsayo)}</p>`;
-  htmlInforme += `<p>&nbsp;&nbsp;&nbsp;Costo Unitario Manilla: $${formatoMoneda(costoUnitarioManilla)}</p>`;
-  htmlInforme += `<p>&nbsp;&nbsp;&nbsp;Gasto Manillas Vendidas (${manillasVendidas} uds.): -$${formatoMoneda(gastoManillasVendidas)}</p>`;
-  htmlInforme += `<p class="subtotal"><strong>Subtotal Gastos Operativos:</strong> -$${formatoMoneda(gastosOperativosTotales)}</p>`;
-  htmlInforme += `<p class="total-emphasis"><strong>INGRESO NETO OPERATIVO:</strong> $${formatoMoneda(ingresoNetoOperativo)}</p>`;
+  htmlInforme += `<p>5. Gasto Sala de Ensayo: -${formatoMoneda(costoEnsayo)}</p>`;
+  htmlInforme += `<p>&nbsp;&nbsp;&nbsp;Costo Unitario Manilla: ${formatoMoneda(costoUnitarioManilla)}</p>`;
+  htmlInforme += `<p>&nbsp;&nbsp;&nbsp;Gasto Manillas Vendidas (${manillasVendidas} uds.): -${formatoMoneda(gastoManillasVendidas)}</p>`;
+  htmlInforme += `<p class="subtotal"><strong>Subtotal Gastos Operativos:</strong> -${formatoMoneda(gastosOperativosTotales)}</p>`;
+  htmlInforme += `<p class="total-emphasis"><strong>INGRESO NETO OPERATIVO:</strong> ${formatoMoneda(ingresoNetoOperativo)}</p>`;
   
-  htmlInforme += `<p>6. Reserva Fondo Banda (${reservaBandaPct}% de Ing. Neto Op.): -$${formatoMoneda(montoReservaBanda)}</p>`;
-  htmlInforme += `<p>&nbsp;&nbsp;&nbsp;<strong>Ingreso Después de Reserva:</strong> $${formatoMoneda(ingresoDespuesReserva)}</p>`;
-  htmlInforme += `<p>7. Honorarios Recaudador (${honorarioRecaudadorPct}% de Ing. Después Reserva): -$${formatoMoneda(montoHonorarioRecaudador)}</p>`;
-  htmlInforme += `<p class="total-emphasis"><strong>INGRESO NETO DISPONIBLE PARA MÚSICOS:</strong> $${formatoMoneda(ingresoNetoDisponibleMusicos)}</p>`;
-  htmlInforme += `<p>8. Honorario por Músico (${numeroMusicos} músicos): $${formatoMoneda(honorarioPorMusico)}</p></div>`;
+  htmlInforme += `<p>6. Reserva Fondo Banda (${reservaBandaPct}% de Ing. Neto Op.): -${formatoMoneda(montoReservaBanda)}</p>`;
+  htmlInforme += `<p>&nbsp;&nbsp;&nbsp;<strong>Ingreso Después de Reserva:</strong> ${formatoMoneda(ingresoDespuesReserva)}</p>`;
+  htmlInforme += `<p>7. Honorarios Recaudador (${honorarioRecaudadorPct}% de Ing. Después Reserva): -${formatoMoneda(montoHonorarioRecaudador)}</p>`;
+  htmlInforme += `<p class="total-emphasis"><strong>INGRESO NETO DISPONIBLE PARA MÚSICOS:</strong> ${formatoMoneda(ingresoNetoDisponibleMusicos)}</p>`;
+  htmlInforme += `<p>8. Honorario por Músico (${numeroMusicos} músicos): ${formatoMoneda(honorarioPorMusico)}</p></div>`;
 
   htmlInforme += `<div class="report-section"><h3>Verificación Adicional:</h3>`;
-  htmlInforme += `<p>9. Ingreso Esperado por Cover (${manillasVendidas} manillas a $${formatoMoneda(precioCover)}): $${formatoMoneda(ingresoEsperadoPorCover)}</p>`;
-  htmlInforme += `<p>&nbsp;&nbsp;&nbsp;Diferencia (Ing. Bruto Evento - Ing. Esperado Cover): $${formatoMoneda(diferenciaIngresoEsperadoVsReal)}</p></div>`;
+  htmlInforme += `<p>9. Ingreso Esperado por Cover (${manillasVendidas} manillas a ${formatoMoneda(precioCover)}): ${formatoMoneda(ingresoEsperadoPorCover)}</p>`;
+  htmlInforme += `<p>&nbsp;&nbsp;&nbsp;Diferencia (Ing. Esperado Cover - Ing. Bruto Evento): ${formatoMoneda(diferenciaIngresoEsperadoVsReal)}</p></div>`;
 
   outputEl.innerHTML = htmlInforme;
   const resultadosDiv = document.getElementById('resultados');
