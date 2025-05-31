@@ -65,11 +65,11 @@ function calcularYGenerarInforme() {
 
   // --- II. PARÁMETROS FIJOS DEL EVENTO ---
   const costoEnsayo = 60000;
-  const costoTotalPaqueteManillas = 65000;
+  const costoTotalPaqueteManillas = 52000;
   const costoUnitarioManilla = costoTotalPaqueteManillas / 200;
   const comisionDatafonoPct = 5;
   const reservaBandaPct = 7;
-  const honorarioRecaudadorPct = 8;
+  const honorarioRecaudadorPct = 7;
 
   // --- III. CÁLCULOS FINANCIEROS ---
   const efectivoRecaudadoDelEvento = totalEfectivoContadoAlFinal - cajaMenorInicial;
