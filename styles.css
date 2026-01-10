@@ -93,7 +93,8 @@ button {
 }
 
 button:hover {
-  background-color: #a10f25; /* rojo más oscuro al hover */
+  background-color: #a10f25;
+  /* rojo más oscuro al hover */
 }
 
 .results {
@@ -101,7 +102,7 @@ button:hover {
   padding: 20px;
   border-radius: 8px;
   border: 1px solid #eee;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .results h2 {
@@ -114,4 +115,114 @@ button:hover {
 .result-item {
   margin: 10px 0;
   font-family: var(--font-body);
+}
+
+/* --- ESTILOS DASHBOARD --- */
+.main-nav {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  background: #f8f8f8;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.nav-btn {
+  background: transparent;
+  color: var(--color-secondary);
+  border: 1px solid transparent;
+  padding: 8px 16px;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 4px;
+  margin-bottom: 0;
+  /* Override generic button margin */
+  width: auto;
+  /* Override generic button width */
+  transition: all 0.2s;
+}
+
+.nav-btn:hover {
+  background: #eee;
+  color: var(--color-primary);
+}
+
+.nav-btn.active {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.view-section {
+  display: none;
+  animation: fadeIn 0.3s;
+}
+
+.view-section.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Tablas */
+.table-responsive {
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  font-family: var(--font-body);
+}
+
+.data-table th,
+.data-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.data-table th {
+  background-color: #f8f8f8;
+  font-weight: 700;
+  color: var(--color-secondary);
+}
+
+.data-table tr:hover {
+  background-color: #fcfcfc;
+}
+
+.btn-small {
+  padding: 5px 10px;
+  font-size: 0.8rem;
+  width: auto;
+  display: inline-block;
+  margin: 0 5px 0 0;
+}
+
+.btn-delete {
+  background-color: #e74c3c;
+}
+
+.btn-delete:hover {
+  background-color: #c0392b;
+}
+
+/* Configuración */
+.config-desc {
+  margin-bottom: 20px;
+  color: #666;
+  text-align: center;
 }
