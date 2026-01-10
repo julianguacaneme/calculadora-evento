@@ -4,32 +4,32 @@
 const { jsPDF } = window.jspdf;
 
 document.addEventListener('DOMContentLoaded', () => {
-    // --- EVENT LISTENERS ---
-    const btnCalcular = document.getElementById('btnCalcular');
-    if (btnCalcular) {
-        btnCalcular.addEventListener('click', calcularYGenerarInforme);
-    }
+  // --- EVENT LISTENERS ---
+  const btnCalcular = document.getElementById('btnCalcular');
+  if (btnCalcular) {
+    btnCalcular.addEventListener('click', calcularYGenerarInforme);
+  }
 
-    // Listeners para los nuevos botones de acción (se activan después de calcular)
-    const btnEnviarCorreo = document.getElementById('btnEnviarCorreo');
-    if (btnEnviarCorreo) {
-        btnEnviarCorreo.addEventListener('click', enviarInformePorCorreo);
-    }
+  // Listeners para los nuevos botones de acción (se activan después de calcular)
+  const btnEnviarCorreo = document.getElementById('btnEnviarCorreo');
+  if (btnEnviarCorreo) {
+    btnEnviarCorreo.addEventListener('click', enviarInformePorCorreo);
+  }
 
-    const btnDescargarPDF = document.getElementById('btnDescargarPDF');
-    if (btnDescargarPDF) {
-        btnDescargarPDF.addEventListener('click', descargarInformePDF);
-    }
+  const btnDescargarPDF = document.getElementById('btnDescargarPDF');
+  if (btnDescargarPDF) {
+    btnDescargarPDF.addEventListener('click', descargarInformePDF);
+  }
 
-    const btnImprimir = document.getElementById('btnImprimir');
-    if (btnImprimir) {
-        btnImprimir.addEventListener('click', imprimirInforme);
-    }
+  const btnImprimir = document.getElementById('btnImprimir');
+  if (btnImprimir) {
+    btnImprimir.addEventListener('click', imprimirInforme);
+  }
 
-    const btnCompartirWhatsApp = document.getElementById('btnCompartirWhatsApp');
-    if (btnCompartirWhatsApp) {
-        btnCompartirWhatsApp.addEventListener('click', compartirInformeWhatsApp);
-    }
+  const btnCompartirWhatsApp = document.getElementById('btnCompartirWhatsApp');
+  if (btnCompartirWhatsApp) {
+    btnCompartirWhatsApp.addEventListener('click', compartirInformeWhatsApp);
+  }
 });
 
 
@@ -57,20 +57,22 @@ function calcularYGenerarInforme() {
   const ingresosDatafonoBruto = Number(document.getElementById('datafono').value) || 0;
   const ingresosDaviplata = Number(document.getElementById('daviplata').value) || 0;
   const ingresosNequi = Number(document.getElementById('nequi').value) || 0;
-  
+
   const manillasVendidas = Number(document.getElementById('vendidas').value) || 0;
   const precioCover = Number(document.getElementById('precioCover').value) || 0;
   const numeroMusicos = Number(document.getElementById('musicos').value) || 1;
   nombreDelEvento = document.getElementById('nombreEvento').value.trim();
 
   // --- II. PARÁMETROS FIJOS DEL EVENTO ---
-  const costoEnsayo = 60000;
-  const costoTotalPaqueteManillas = 52000;
+  // --- II. PARÁMETROS FIJOS DEL EVENTO (AHORA CONFIGURABLES) ---
+  const costoEnsayo = Number(document.getElementById('costoEnsayo').value) || 0;
+  const costoTotalPaqueteManillas = Number(document.getElementById('costoPaqueteManillas').value) || 0;
+  const honorarioRecaudadorPct = Number(document.getElementById('honorarioRecaudadorPct').value) || 0;
+
   const costoUnitarioManilla = costoTotalPaqueteManillas / 200;
   const comisionDatafonoPct = 5;
   const costoTransferencia = 9000;
   const reservaBandaPct = 7;
-  const honorarioRecaudadorPct = 7;
 
   // --- III. CÁLCULOS FINANCIEROS ---
   const efectivoRecaudadoDelEvento = totalEfectivoContadoAlFinal - cajaMenorInicial;
@@ -107,14 +109,14 @@ function calcularYGenerarInforme() {
   if (!outputEl || !nombreEventoResultadoEl) return;
 
   nombreEventoResultadoEl.textContent = nombreDelEvento ? nombreDelEvento : "Evento General";
-  
+
   let htmlInforme = '';
   htmlInforme += `<div class="report-section"><h3>Flujo de Caja y Efectivo:</h3>`;
   htmlInforme += `<p><strong>A. Caja Menor Inicial (Base entregada):</strong> ${formatoMoneda(cajaMenorInicial)}</p>`;
   htmlInforme += `<p><strong>B. Total Efectivo Contado al Finalizar:</strong> ${formatoMoneda(totalEfectivoContadoAlFinal)}</p>`;
   htmlInforme += `<p><strong>C. Efectivo Recaudado en el Evento (B - A):</strong> ${formatoMoneda(efectivoRecaudadoDelEvento)}</p>`;
   htmlInforme += `<p><strong>D. Devolución de Caja Menor Inicial:</strong> ${formatoMoneda(cajaMenorInicial)} (Este monto se retorna de B)</p></div>`;
-  
+
   htmlInforme += `<div class="report-section"><h3>Ingresos del Evento:</h3>`;
   htmlInforme += `<p>1. Ingresos por Datáfono (Bruto): ${formatoMoneda(ingresosDatafonoBruto)}</p>`;
   htmlInforme += `<p>&nbsp;&nbsp;&nbsp;Comisión Datáfono (${comisionDatafonoPct}%): -${formatoMoneda(valorComisionDatafono)}</p>`;
@@ -131,7 +133,7 @@ function calcularYGenerarInforme() {
   htmlInforme += `<p>&nbsp;&nbsp;&nbsp;Gasto Manillas Vendidas (${manillasVendidas} uds.): -${formatoMoneda(gastoManillasVendidas)}</p>`;
   htmlInforme += `<p class="subtotal"><strong>Subtotal Gastos Operativos:</strong> -${formatoMoneda(gastosOperativosTotales)}</p>`;
   htmlInforme += `<p class="total-emphasis"><strong>INGRESO NETO OPERATIVO:</strong> ${formatoMoneda(ingresoNetoOperativo)}</p>`;
-  
+
   htmlInforme += `<p>6. Reserva Fondo Banda (${reservaBandaPct}% de Ing. Neto Op.): -${formatoMoneda(montoReservaBanda)}</p>`;
   htmlInforme += `<p>&nbsp;&nbsp;&nbsp;<strong>Ingreso Después de Reserva:</strong> ${formatoMoneda(ingresoDespuesReserva)}</p>`;
   htmlInforme += `<p>7. Honorarios Recaudador (${honorarioRecaudadorPct}% de Ing. Después Reserva): -${formatoMoneda(montoHonorarioRecaudador)}</p>`;
@@ -144,7 +146,7 @@ function calcularYGenerarInforme() {
 
   outputEl.innerHTML = htmlInforme;
   const resultadosDiv = document.getElementById('resultados');
-  if(resultadosDiv) resultadosDiv.style.display = 'block';
+  if (resultadosDiv) resultadosDiv.style.display = 'block';
   mostrarFeedback('Informe calculado y generado.', false);
 }
 
@@ -155,38 +157,38 @@ function formatoMoneda(valor) {
 }
 
 function generarTextoPlanoInforme(incluirNombreEvento = true) {
-    if (Object.keys(informeCalculado).length === 0) return "No hay informe para procesar.";
-    const ic = informeCalculado; // Alias
-    let texto = "";
-    if(incluirNombreEvento && nombreDelEvento) texto += `Informe Financiero: ${nombreDelEvento}\n\n`;
-    else if (incluirNombreEvento) texto += `Informe Financiero Evento Mambo Candela\n\n`;
+  if (Object.keys(informeCalculado).length === 0) return "No hay informe para procesar.";
+  const ic = informeCalculado; // Alias
+  let texto = "";
+  if (incluirNombreEvento && nombreDelEvento) texto += `Informe Financiero: ${nombreDelEvento}\n\n`;
+  else if (incluirNombreEvento) texto += `Informe Financiero Evento Mambo Candela\n\n`;
 
-    texto += `FLUJO DE CAJA Y EFECTIVO:\n`;
-    texto += `A. Caja Menor Inicial: ${formatoMoneda(ic.cajaMenorInicial)}\n`;
-    texto += `B. Total Efectivo Contado al Final: ${formatoMoneda(ic.totalEfectivoContadoAlFinal)}\n`;
-    texto += `C. Efectivo Recaudado Evento: ${formatoMoneda(ic.efectivoRecaudadoDelEvento)}\n`;
-    texto += `D. Devolución Caja Menor: ${formatoMoneda(ic.cajaMenorInicial)}\n\n`;
+  texto += `FLUJO DE CAJA Y EFECTIVO:\n`;
+  texto += `A. Caja Menor Inicial: ${formatoMoneda(ic.cajaMenorInicial)}\n`;
+  texto += `B. Total Efectivo Contado al Final: ${formatoMoneda(ic.totalEfectivoContadoAlFinal)}\n`;
+  texto += `C. Efectivo Recaudado Evento: ${formatoMoneda(ic.efectivoRecaudadoDelEvento)}\n`;
+  texto += `D. Devolución Caja Menor: ${formatoMoneda(ic.cajaMenorInicial)}\n\n`;
 
-    texto += `INGRESOS DEL EVENTO:\n`;
-    texto += `1. Neto Datáfono: ${formatoMoneda(ic.ingresosDatafonoNeto)} (Comisión ${ic.comisionDatafonoPct}%: -${formatoMoneda(ic.valorComisionDatafono)} sobre Bruto $${formatoMoneda(ic.ingresosDatafonoBruto)})\n`;
-    texto += `2. Daviplata: ${formatoMoneda(ic.ingresosDaviplata)}\n`;
-    texto += `3. Nequi: ${formatoMoneda(ic.ingresosNequi)}\n`;
-    texto += `4. Efectivo Recaudado: ${formatoMoneda(ic.efectivoRecaudadoDelEvento)}\n`;
-    texto += `TOTAL INGRESOS BRUTOS EVENTO: ${formatoMoneda(ic.totalIngresosBrutosEvento)}\n\n`;
+  texto += `INGRESOS DEL EVENTO:\n`;
+  texto += `1. Neto Datáfono: ${formatoMoneda(ic.ingresosDatafonoNeto)} (Comisión ${ic.comisionDatafonoPct}%: -${formatoMoneda(ic.valorComisionDatafono)} sobre Bruto $${formatoMoneda(ic.ingresosDatafonoBruto)})\n`;
+  texto += `2. Daviplata: ${formatoMoneda(ic.ingresosDaviplata)}\n`;
+  texto += `3. Nequi: ${formatoMoneda(ic.ingresosNequi)}\n`;
+  texto += `4. Efectivo Recaudado: ${formatoMoneda(ic.efectivoRecaudadoDelEvento)}\n`;
+  texto += `TOTAL INGRESOS BRUTOS EVENTO: ${formatoMoneda(ic.totalIngresosBrutosEvento)}\n\n`;
 
-    texto += `GASTOS Y DISTRIBUCIÓN:\n`;
-    texto += `5. Gastos Operativos (Ensayo, Manillas): -${formatoMoneda(ic.gastosOperativosTotales)}\n`;
-    texto += `INGRESO NETO OPERATIVO: ${formatoMoneda(ic.ingresoNetoOperativo)}\n`;
-    texto += `6. Reserva Banda (${ic.reservaBandaPct}%): -${formatoMoneda(ic.montoReservaBanda)}\n`;
-    texto += `Ingreso Después Reserva: ${formatoMoneda(ic.ingresoDespuesReserva)}\n`;
-    texto += `7. Honorarios Recaudador (${ic.honorarioRecaudadorPct}%): -${formatoMoneda(ic.montoHonorarioRecaudador)}\n`;
-    texto += `INGRESO NETO DISPONIBLE MÚSICOS: ${formatoMoneda(ic.ingresoNetoDisponibleMusicos)}\n`;
-    texto += `8. Honorario por Músico (${ic.numeroMusicos}): ${formatoMoneda(ic.honorarioPorMusico)}\n\n`;
-    
-    texto += `VERIFICACIÓN:\n`;
-    texto += `Ingreso Esperado Cover (${ic.manillasVendidas} x ${formatoMoneda(ic.precioCover)}): ${formatoMoneda(ic.ingresoEsperadoPorCover)}\n`;
-    texto += `Diferencia vs Ing. Bruto: ${formatoMoneda(ic.diferenciaIngresoEsperadoVsReal)}\n`;
-    return texto;
+  texto += `GASTOS Y DISTRIBUCIÓN:\n`;
+  texto += `5. Gastos Operativos (Ensayo, Manillas): -${formatoMoneda(ic.gastosOperativosTotales)}\n`;
+  texto += `INGRESO NETO OPERATIVO: ${formatoMoneda(ic.ingresoNetoOperativo)}\n`;
+  texto += `6. Reserva Banda (${ic.reservaBandaPct}%): -${formatoMoneda(ic.montoReservaBanda)}\n`;
+  texto += `Ingreso Después Reserva: ${formatoMoneda(ic.ingresoDespuesReserva)}\n`;
+  texto += `7. Honorarios Recaudador (${ic.honorarioRecaudadorPct}%): -${formatoMoneda(ic.montoHonorarioRecaudador)}\n`;
+  texto += `INGRESO NETO DISPONIBLE MÚSICOS: ${formatoMoneda(ic.ingresoNetoDisponibleMusicos)}\n`;
+  texto += `8. Honorario por Músico (${ic.numeroMusicos}): ${formatoMoneda(ic.honorarioPorMusico)}\n\n`;
+
+  texto += `VERIFICACIÓN:\n`;
+  texto += `Ingreso Esperado Cover (${ic.manillasVendidas} x ${formatoMoneda(ic.precioCover)}): ${formatoMoneda(ic.ingresoEsperadoPorCover)}\n`;
+  texto += `Diferencia vs Ing. Bruto: ${formatoMoneda(ic.diferenciaIngresoEsperadoVsReal)}\n`;
+  return texto;
 }
 
 
@@ -208,10 +210,10 @@ function descargarInformePDF() {
   const { jsPDF } = window.jspdf;
   const reportContent = document.getElementById('output');
   const reportTitleOriginal = document.querySelector('.results h2').innerText;
-  
+
   if (!reportContent) {
-      mostrarFeedback("Contenido del informe no encontrado.", true);
-      return;
+    mostrarFeedback("Contenido del informe no encontrado.", true);
+    return;
   }
 
   mostrarFeedback("Generando PDF...", false);
@@ -225,60 +227,60 @@ function descargarInformePDF() {
   titleEl.style.fontFamily = 'Montserrat, sans-serif';
   titleEl.style.marginBottom = '20px';
   contentToPrint.insertBefore(titleEl, contentToPrint.firstChild);
-  
+
   // Añadir estilos directamente para el PDF si es necesario o usar html2canvas
   // Para mejor fidelidad visual, html2canvas es preferible
   html2canvas(contentToPrint, {
-      scale: 2, // Mejorar resolución
-      useCORS: true,
-      logging: true,
-      onclone: (documentClone) => {
-          // Aquí podrías aplicar estilos específicos para el clon antes de renderizar
-          // Por ejemplo, asegurar que los colores de fondo se impriman
-          Array.from(documentClone.querySelectorAll('.report-section')).forEach(el => {
-              el.style.border = '1px solid #eee';
-              el.style.padding = '10px';
-              el.style.marginBottom = '10px';
-          });
-          Array.from(documentClone.querySelectorAll('.total-emphasis')).forEach(el => {
-              el.style.fontWeight = 'bold';
-              el.style.backgroundColor = '#f0f0f0'; // Un fondo claro
-              el.style.padding = '5px';
-              el.style.borderLeft = '3px solid #C8102E'; // Color primario
-          });
-      }
-  }).then(canvas => {
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF({
-          orientation: 'p',
-          unit: 'mm',
-          format: 'a4'
+    scale: 2, // Mejorar resolución
+    useCORS: true,
+    logging: true,
+    onclone: (documentClone) => {
+      // Aquí podrías aplicar estilos específicos para el clon antes de renderizar
+      // Por ejemplo, asegurar que los colores de fondo se impriman
+      Array.from(documentClone.querySelectorAll('.report-section')).forEach(el => {
+        el.style.border = '1px solid #eee';
+        el.style.padding = '10px';
+        el.style.marginBottom = '10px';
       });
-      const imgProps= pdf.getImageProperties(imgData);
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-      let position = 0;
-      const pageMargin = 10; // Margen de 10mm en todas las direcciones
-      const contentWidth = pdfWidth - (2 * pageMargin);
-      const contentHeight = pdf.internal.pageSize.getHeight() - (2 * pageMargin);
-      
-      let heightLeft = pdfHeight;
+      Array.from(documentClone.querySelectorAll('.total-emphasis')).forEach(el => {
+        el.style.fontWeight = 'bold';
+        el.style.backgroundColor = '#f0f0f0'; // Un fondo claro
+        el.style.padding = '5px';
+        el.style.borderLeft = '3px solid #C8102E'; // Color primario
+      });
+    }
+  }).then(canvas => {
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF({
+      orientation: 'p',
+      unit: 'mm',
+      format: 'a4'
+    });
+    const imgProps = pdf.getImageProperties(imgData);
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+    let position = 0;
+    const pageMargin = 10; // Margen de 10mm en todas las direcciones
+    const contentWidth = pdfWidth - (2 * pageMargin);
+    const contentHeight = pdf.internal.pageSize.getHeight() - (2 * pageMargin);
 
-      pdf.addImage(imgData, 'PNG', pageMargin, pageMargin, contentWidth, pdfHeight * (contentWidth / imgProps.width) );
+    let heightLeft = pdfHeight;
+
+    pdf.addImage(imgData, 'PNG', pageMargin, pageMargin, contentWidth, pdfHeight * (contentWidth / imgProps.width));
+    heightLeft -= contentHeight;
+
+    while (heightLeft > 0) {
+      position = heightLeft - pdfHeight; // Avanza la posición
+      pdf.addPage();
+      pdf.addImage(imgData, 'PNG', pageMargin, position + pageMargin, contentWidth, pdfHeight * (contentWidth / imgProps.width));
       heightLeft -= contentHeight;
+    }
 
-      while (heightLeft > 0) {
-          position = heightLeft - pdfHeight; // Avanza la posición
-          pdf.addPage();
-          pdf.addImage(imgData, 'PNG', pageMargin, position + pageMargin, contentWidth, pdfHeight * (contentWidth / imgProps.width));
-          heightLeft -= contentHeight;
-      }
-
-      pdf.save(`${nombreDelEvento.replace(/\s+/g, '_') || 'Informe_Financiero'}_Mambo_Candela.pdf`);
-      mostrarFeedback("PDF generado y descargado.", false);
+    pdf.save(`${nombreDelEvento.replace(/\s+/g, '_') || 'Informe_Financiero'}_Mambo_Candela.pdf`);
+    mostrarFeedback("PDF generado y descargado.", false);
   }).catch(err => {
-      console.error("Error al generar PDF:", err);
-      mostrarFeedback("Error al generar PDF: " + err.message, true);
+    console.error("Error al generar PDF:", err);
+    mostrarFeedback("Error al generar PDF: " + err.message, true);
   });
 }
 
@@ -291,7 +293,7 @@ function imprimirInforme() {
   // Se podría crear un iframe temporal con el contenido y estilos de impresión
   // o usar @media print CSS. Por simplicidad, usaremos window.print()
   // y asumiremos que los estilos de `styles.css` (@media print) manejan el formato.
-  
+
   // Opcional: clonar el contenido y aplicar estilos específicos para impresión
   // antes de llamar a window.print().
   // Por ahora, impresión directa del contenido visible.
