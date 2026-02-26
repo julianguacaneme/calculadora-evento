@@ -133,8 +133,13 @@
           <input type="number" id="cfg-costoEnsayo" class="config-input">
         </div>
         <div>
-          <label for="cfg-costoPaqueteManillas">Costo Paquete Manillas (200u)</label>
-          <input type="number" id="cfg-costoPaqueteManillas" class="config-input">
+          <label for="cfg-unidadesPorPaqueteManillas">Unidades por Paquete de Manillas</label>
+          <input type="number" id="cfg-unidadesPorPaqueteManillas" class="config-input" min="1"
+            placeholder="Ej: 200, 400">
+        </div>
+        <div>
+          <label for="cfg-costoPaqueteManillas">Costo del Paquete de Manillas</label>
+          <input type="number" id="cfg-costoPaqueteManillas" class="config-input" min="0" step="1000">
         </div>
 
         <div class="full-width section-title"><strong> PORCENTAJES Y HONORARIOS </strong></div>

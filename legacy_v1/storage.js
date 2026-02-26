@@ -7,7 +7,8 @@ class StorageManager {
         this.defaultConfig = {
             // Gastos
             costoEnsayo: 75000,
-            costoPaqueteManillas: 50000, // Por 200 unidades
+            unidadesPorPaqueteManillas: 200,
+            costoPaqueteManillas: 50000,
             reservaBandaPct: 7,
             honorarioRecaudadorPct: 7,
 
@@ -35,6 +36,7 @@ class StorageManager {
             // Validar datos básicos
             const configToSave = {
                 costoEnsayo: Number(newConfig.costoEnsayo) || 0,
+                unidadesPorPaqueteManillas: Number(newConfig.unidadesPorPaqueteManillas) || 200,
                 costoPaqueteManillas: Number(newConfig.costoPaqueteManillas) || 0,
                 reservaBandaPct: Number(newConfig.reservaBandaPct) || 0,
                 honorarioRecaudadorPct: Number(newConfig.honorarioRecaudadorPct) || 0,

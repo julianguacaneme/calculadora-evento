@@ -49,6 +49,7 @@ function loadConfigurationToView() {
   if (!config) return;
 
   setInputVal('cfg-costoEnsayo', config.costoEnsayo);
+  setInputVal('cfg-unidadesPorPaqueteManillas', config.unidadesPorPaqueteManillas);
   setInputVal('cfg-costoPaqueteManillas', config.costoPaqueteManillas);
   setInputVal('cfg-honorarioRecaudadorPct', config.honorarioRecaudadorPct);
   setInputVal('cfg-reservaBandaPct', config.reservaBandaPct);
@@ -57,6 +58,7 @@ function loadConfigurationToView() {
 function guardarConfiguracion() {
   const newConfig = {
     costoEnsayo: getInputVal('cfg-costoEnsayo'),
+    unidadesPorPaqueteManillas: getInputVal('cfg-unidadesPorPaqueteManillas'),
     costoPaqueteManillas: getInputVal('cfg-costoPaqueteManillas'),
     honorarioRecaudadorPct: getInputVal('cfg-honorarioRecaudadorPct'),
     reservaBandaPct: getInputVal('cfg-reservaBandaPct')
@@ -87,7 +89,8 @@ function calcularYGenerarInforme() {
   const config = window.storageManager.getConfig();
 
   // 3. Cálculos
-  const costoUnitarioManilla = config.costoPaqueteManillas / 200;
+  const unidadesPorPaquete = config.unidadesPorPaqueteManillas || 200;
+  const costoUnitarioManilla = config.costoPaqueteManillas / unidadesPorPaquete;
   const comisionDatafonoPct = 5;
   const costoTransferencia = 9000;
 
