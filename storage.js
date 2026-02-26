@@ -11,6 +11,9 @@ class StorageManager {
             costoPaqueteManillas: 50000,
             reservaBandaPct: 7,
             honorarioRecaudadorPct: 7,
+            comisionDatafonoPct: 5,
+            costoTransferencia: 9000,
+            pagoRodie: 50000,
 
             // Otros parámetros globales si surgieran
         };
@@ -40,6 +43,9 @@ class StorageManager {
                 costoPaqueteManillas: Number(newConfig.costoPaqueteManillas) || 0,
                 reservaBandaPct: Number(newConfig.reservaBandaPct) || 0,
                 honorarioRecaudadorPct: Number(newConfig.honorarioRecaudadorPct) || 0,
+                comisionDatafonoPct: Number(newConfig.comisionDatafonoPct) || 0,
+                costoTransferencia: Number(newConfig.costoTransferencia) || 0,
+                pagoRodie: Number(newConfig.pagoRodie) || 0,
             };
 
             localStorage.setItem(this.configKey, JSON.stringify(configToSave));

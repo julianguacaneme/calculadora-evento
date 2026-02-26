@@ -53,6 +53,9 @@ function loadConfigurationToView() {
   setInputVal('cfg-costoPaqueteManillas', config.costoPaqueteManillas);
   setInputVal('cfg-honorarioRecaudadorPct', config.honorarioRecaudadorPct);
   setInputVal('cfg-reservaBandaPct', config.reservaBandaPct);
+  setInputVal('cfg-pagoRodie', config.pagoRodie);
+  setInputVal('cfg-comisionDatafonoPct', config.comisionDatafonoPct);
+  setInputVal('cfg-costoTransferencia', config.costoTransferencia);
 }
 
 function guardarConfiguracion() {
@@ -61,7 +64,10 @@ function guardarConfiguracion() {
     unidadesPorPaqueteManillas: getInputVal('cfg-unidadesPorPaqueteManillas'),
     costoPaqueteManillas: getInputVal('cfg-costoPaqueteManillas'),
     honorarioRecaudadorPct: getInputVal('cfg-honorarioRecaudadorPct'),
-    reservaBandaPct: getInputVal('cfg-reservaBandaPct')
+    reservaBandaPct: getInputVal('cfg-reservaBandaPct'),
+    pagoRodie: getInputVal('cfg-pagoRodie'),
+    comisionDatafonoPct: getInputVal('cfg-comisionDatafonoPct'),
+    costoTransferencia: getInputVal('cfg-costoTransferencia')
   };
 
   const saved = window.storageManager.saveConfig(newConfig);
@@ -83,6 +89,8 @@ function calcularYGenerarInforme() {
   const manillasVendidas = getInputVal('vendidas');
   const precioCover = getInputVal('precioCover');
   const numeroMusicos = getInputVal('musicos') || 1;
+  const numeroRodies = getInputVal('rodies') || 0;
+  const numeroEnsayos = getInputVal('ensayos') || 0;
   nombreDelEvento = document.getElementById('nombreEvento').value.trim();
 
   // 2. Parámetros Fijos
@@ -91,8 +99,8 @@ function calcularYGenerarInforme() {
   // 3. Cálculos
   const unidadesPorPaquete = config.unidadesPorPaqueteManillas || 200;
   const costoUnitarioManilla = config.costoPaqueteManillas / unidadesPorPaquete;
-  const comisionDatafonoPct = 5;
-  const costoTransferencia = 9000;
+  const comisionDatafonoPct = config.comisionDatafonoPct || 0;
+  const costoTransferencia = config.costoTransferencia || 0;
 
   const efectivoRecaudadoDelEvento = totalEfectivoContadoAlFinal - cajaMenorInicial;
   const valorComisionDatafono = ingresosDatafonoBruto * (comisionDatafonoPct / 100);
@@ -100,7 +108,9 @@ function calcularYGenerarInforme() {
   const totalIngresosBrutosEvento = ingresosDatafonoNeto + ingresosDaviplata + ingresosNequi + efectivoRecaudadoDelEvento;
 
   const gastoManillasVendidas = costoUnitarioManilla * manillasVendidas;
-  const gastosOperativosTotales = config.costoEnsayo + gastoManillasVendidas;
+  const costoTotalEnsayos = config.costoEnsayo * numeroEnsayos;
+  const costoTotalRodies = (config.pagoRodie || 0) * numeroRodies;
+  const gastosOperativosTotales = costoTotalEnsayos + gastoManillasVendidas + costoTotalRodies;
   const ingresoNetoOperativo = totalIngresosBrutosEvento - gastosOperativosTotales;
 
   const montoReservaBanda = ingresoNetoOperativo > 0 ? ingresoNetoOperativo * (config.reservaBandaPct / 100) : 0;
@@ -118,10 +128,10 @@ function calcularYGenerarInforme() {
     nombreDelEvento: nombreDelEvento || "Evento Sin Nombre",
     cajaMenorInicial, totalEfectivoContadoAlFinal, efectivoRecaudadoDelEvento,
     ingresosDatafonoBruto, ingresosDaviplata, ingresosNequi,
-    manillasVendidas, precioCover, numeroMusicos,
+    manillasVendidas, precioCover, numeroMusicos, numeroRodies, numeroEnsayos,
     configSnapshot: { ...config },
-    valorComisionDatafono, comisionDatafonoPct, ingresosDatafonoNeto, totalIngresosBrutosEvento,
-    gastoManillasVendidas, gastosOperativosTotales, ingresoNetoOperativo,
+    valorComisionDatafono, comisionDatafonoPct, costoTransferencia, ingresosDatafonoNeto, totalIngresosBrutosEvento,
+    gastoManillasVendidas, costoTotalEnsayos, costoTotalRodies, gastosOperativosTotales, ingresoNetoOperativo,
     montoReservaBanda, ingresoDespuesReserva, montoHonorarioRecaudador,
     ingresoNetoDisponibleMusicos, honorarioPorMusico,
     ingresoEsperadoPorCover, diferenciaIngresoEsperadoVsReal
@@ -152,9 +162,23 @@ function renderizarInformeHTML() {
     <p><strong>C. Efectivo Recaudado:</strong> ${formatoMoneda(ic.efectivoRecaudadoDelEvento)}</p>
     </div>`;
 
+  html += `<div class="report-section"><h3>Medios de Pago Digitales:</h3>
+    <p><strong>Nequi:</strong> ${formatoMoneda(ic.ingresosNequi)}</p>
+    <p><strong>Daviplata:</strong> ${formatoMoneda(ic.ingresosDaviplata)}</p>
+    <p><strong>Datáfono (Bruto):</strong> ${formatoMoneda(ic.ingresosDatafonoBruto)}</p>
+    <p>Descuento Comisión Datáfono (${ic.comisionDatafonoPct}%): -${formatoMoneda(ic.valorComisionDatafono)}</p>
+    <p>Costo Transferencia Datáfono: -${formatoMoneda(ic.costoTransferencia)}</p>
+    <p><strong>Datáfono (Neto):</strong> ${formatoMoneda(ic.ingresosDatafonoNeto)}</p>
+    </div>`;
+
   html += `<div class="report-section"><h3>Resultados Financieros:</h3>
     <p class="total-emphasis"><strong>TOTAL INGRESOS BRUTOS:</strong> ${formatoMoneda(ic.totalIngresosBrutosEvento)}</p>
-    <p>Gastos Operativos: -${formatoMoneda(ic.gastosOperativosTotales)}</p>
+    <div class="expense-detail" style="font-size: 0.9em; color: #555; margin-left: 10px;">
+        <p>• Sala Ensayo (${ic.numeroEnsayos} x ${formatoMoneda(ic.configSnapshot.costoEnsayo)}): ${formatoMoneda(ic.costoTotalEnsayos)}</p>
+        <p>• Costo Manillas (${ic.manillasVendidas} und): ${formatoMoneda(ic.gastoManillasVendidas)}</p>
+        ${ic.numeroRodies > 0 ? `<p>• Pago Rodie/Utilero (${ic.numeroRodies} x ${formatoMoneda(ic.configSnapshot.pagoRodie)}): ${formatoMoneda(ic.costoTotalRodies)}</p>` : ''}
+    </div>
+    <p><strong>Total Gastos Operativos:</strong> -${formatoMoneda(ic.gastosOperativosTotales)}</p>
     <p><strong>Ingreso Neto Operativo:</strong> ${formatoMoneda(ic.ingresoNetoOperativo)}</p>
     <p>Reserva Banda (${ic.configSnapshot.reservaBandaPct}%): -${formatoMoneda(ic.montoReservaBanda)}</p>
     <p>Honorarios Recaudador (${ic.configSnapshot.honorarioRecaudadorPct}%): -${formatoMoneda(ic.montoHonorarioRecaudador)}</p>
@@ -258,10 +282,25 @@ function mostrarFeedback(mensaje, esError = false, elementId = 'feedbackMessage'
 function generarTextoPlanoInforme() {
   if (Object.keys(informeCalculado).length === 0) return "No hay informe.";
   const ic = informeCalculado;
-  let t = `Informe: ${ic.nombreDelEvento}\n`;
-  t += `Total Ingresos: ${formatoMoneda(ic.totalIngresosBrutosEvento)}\n`;
-  t += `Neto Músicos: ${formatoMoneda(ic.ingresoNetoDisponibleMusicos)}\n`;
-  t += `Pago/Músico: ${formatoMoneda(ic.honorarioPorMusico)}\n`;
+  let t = `Informe: ${ic.nombreDelEvento}\n\n`;
+  t += `--- MEDIOS DIGITALES ---\n`;
+  t += `Nequi: ${formatoMoneda(ic.ingresosNequi)}\n`;
+  t += `Daviplata: ${formatoMoneda(ic.ingresosDaviplata)}\n`;
+  t += `Datáfono (Bruto): ${formatoMoneda(ic.ingresosDatafonoBruto)}\n`;
+  t += `Comisión Datáfono (${ic.comisionDatafonoPct}%): -${formatoMoneda(ic.valorComisionDatafono)}\n`;
+  t += `Costo Transferencia: -${formatoMoneda(ic.costoTransferencia)}\n`;
+  t += `Datáfono (Neto): ${formatoMoneda(ic.ingresosDatafonoNeto)}\n\n`;
+  t += `--- GASTOS OPERATIVOS ---\n`;
+  t += `Sala Ensayo (${ic.numeroEnsayos} ens): ${formatoMoneda(ic.costoTotalEnsayos)}\n`;
+  t += `Manillas (${ic.manillasVendidas} und): ${formatoMoneda(ic.gastoManillasVendidas)}\n`;
+  if (ic.numeroRodies > 0) {
+    t += `Utileros (${ic.numeroRodies}): ${formatoMoneda(ic.costoTotalRodies)}\n`;
+  }
+  t += `Total Gastos: -${formatoMoneda(ic.gastosOperativosTotales)}\n\n`;
+  t += `--- RESULTADOS ---\n`;
+  t += `Total Ingresos Brutos: ${formatoMoneda(ic.totalIngresosBrutosEvento)}\n`;
+  t += `Disponible Músicos: ${formatoMoneda(ic.ingresoNetoDisponibleMusicos)}\n`;
+  t += `Pago por Músico: ${formatoMoneda(ic.honorarioPorMusico)}\n`;
   return t;
 }
 

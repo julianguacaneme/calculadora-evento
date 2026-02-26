@@ -60,6 +60,10 @@
 
         <div class="full-width section-title"><strong> OTROS DATOS </strong></div>
         <div><label for="musicos">Cantidad de músicos</label><input type="number" id="musicos" value="1" min="1"></div>
+        <div><label for="rodies">Cantidad de utileros/rodies</label><input type="number" id="rodies" value="0" min="0">
+        </div>
+        <div><label for="ensayos">Cantidad de ensayos en sala</label><input type="number" id="ensayos" value="1"
+            min="0"></div>
         <div>
           <label for="nombreEvento">Nombre del Evento (Opcional)</label>
           <input type="text" id="nombreEvento" placeholder="Ej: Concierto Bar XYZ">
@@ -150,6 +154,19 @@
         <div>
           <label for="cfg-reservaBandaPct">Reserva Fondo Banda (%)</label>
           <input type="number" id="cfg-reservaBandaPct" class="config-input" step="0.1">
+        </div>
+        <div>
+          <label for="cfg-pagoRodie">Pago por Utilero/Rodie</label>
+          <input type="number" id="cfg-pagoRodie" class="config-input" min="0" step="1000">
+        </div>
+        <div class="full-width section-title"><strong> COMISIONES Y TRANSFERENCIAS </strong></div>
+        <div>
+          <label for="cfg-comisionDatafonoPct">Comisión Datáfono (%)</label>
+          <input type="number" id="cfg-comisionDatafonoPct" class="config-input" step="0.1">
+        </div>
+        <div>
+          <label for="cfg-costoTransferencia">Costo por Transferencia</label>
+          <input type="number" id="cfg-costoTransferencia" class="config-input" step="1000">
         </div>
       </div>
 
