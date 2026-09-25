@@ -4,8 +4,6 @@
    – Blanco fondo:   #FFFFFF
 */
 
-@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Montserrat:wght@600;800&display=swap');
-
 :root {
   --color-primary: #C8102E;
   --color-secondary: #333333;
@@ -67,7 +65,8 @@ label {
 }
 
 input[type="number"],
-input[type="email"] {
+input[type="email"],
+input[type="text"] {
   width: 100%;
   padding: 8px;
   border: 2px solid #ddd;
@@ -225,4 +224,93 @@ button:hover {
   margin-bottom: 20px;
   color: #666;
   text-align: center;
+}
+
+/* Mensajes de feedback */
+.feedback-message {
+  padding: 10px 14px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  font-weight: 700;
+}
+
+.feedback-message.success {
+  background: #d4edda;
+  color: #155724;
+}
+
+.feedback-message.error {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+/* Acciones del informe */
+.action-buttons-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+}
+
+.action-buttons-grid button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 0;
+}
+
+.action-buttons-grid button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Móvil */
+@media (max-width: 600px) {
+  body {
+    padding: 16px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .full-width {
+    grid-column: auto;
+  }
+
+  .main-nav {
+    flex-wrap: wrap;
+  }
+}
+
+/* Impresión: solo el informe */
+@media print {
+  body {
+    padding: 0;
+    max-width: none;
+  }
+
+  .main-nav,
+  #section-calculator > h1,
+  #section-calculator > .grid,
+  #btnCalcular,
+  .feedback-message,
+  .report-actions {
+    display: none !important;
+  }
+
+  .results {
+    border: none;
+    box-shadow: none;
+    padding: 0;
+  }
+
+  .report-section {
+    break-inside: avoid;
+  }
 }

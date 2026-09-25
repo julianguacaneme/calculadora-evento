@@ -1,7 +1,5 @@
 // script.js - Mambo Candela Finance Calculator v4 (with Dashboard)
 
-const { jsPDF } = window.jspdf;
-
 document.addEventListener('DOMContentLoaded', () => {
   // --- INICIALIZACIÓN ---
   initNavigation();
@@ -54,8 +52,6 @@ function loadConfigurationToView() {
   setInputVal('cfg-honorarioRecaudadorPct', config.honorarioRecaudadorPct);
   setInputVal('cfg-reservaBandaPct', config.reservaBandaPct);
   setInputVal('cfg-pagoRodie', config.pagoRodie);
-  setInputVal('cfg-comisionDatafonoPct', config.comisionDatafonoPct);
-  setInputVal('cfg-costoTransferencia', config.costoTransferencia);
 }
 
 function guardarConfiguracion() {
@@ -65,9 +61,7 @@ function guardarConfiguracion() {
     costoPaqueteManillas: getInputVal('cfg-costoPaqueteManillas'),
     honorarioRecaudadorPct: getInputVal('cfg-honorarioRecaudadorPct'),
     reservaBandaPct: getInputVal('cfg-reservaBandaPct'),
-    pagoRodie: getInputVal('cfg-pagoRodie'),
-    comisionDatafonoPct: getInputVal('cfg-comisionDatafonoPct'),
-    costoTransferencia: getInputVal('cfg-costoTransferencia')
+    pagoRodie: getInputVal('cfg-pagoRodie')
   };
 
   const saved = window.storageManager.saveConfig(newConfig);
@@ -83,7 +77,8 @@ function calcularYGenerarInforme() {
   // 1. Entradas Variables
   const cajaMenorInicial = getInputVal('cajaMenorInicial');
   const totalEfectivoContadoAlFinal = getInputVal('efectivoFinal');
-  const ingresosDatafonoBruto = getInputVal('datafono');
+  // El valor del datáfono ya viene neto (lo que reporta la app del datáfono tras comisiones)
+  const ingresosDatafono = getInputVal('datafono');
   const ingresosDaviplata = getInputVal('daviplata');
   const ingresosNequi = getInputVal('nequi');
   const manillasVendidas = getInputVal('vendidas');
@@ -99,13 +94,9 @@ function calcularYGenerarInforme() {
   // 3. Cálculos
   const unidadesPorPaquete = config.unidadesPorPaqueteManillas || 200;
   const costoUnitarioManilla = config.costoPaqueteManillas / unidadesPorPaquete;
-  const comisionDatafonoPct = config.comisionDatafonoPct || 0;
-  const costoTransferencia = config.costoTransferencia || 0;
 
   const efectivoRecaudadoDelEvento = totalEfectivoContadoAlFinal - cajaMenorInicial;
-  const valorComisionDatafono = ingresosDatafonoBruto * (comisionDatafonoPct / 100);
-  const ingresosDatafonoNeto = ingresosDatafonoBruto - valorComisionDatafono - costoTransferencia;
-  const totalIngresosBrutosEvento = ingresosDatafonoNeto + ingresosDaviplata + ingresosNequi + efectivoRecaudadoDelEvento;
+  const totalIngresosBrutosEvento = ingresosDatafono + ingresosDaviplata + ingresosNequi + efectivoRecaudadoDelEvento;
 
   const gastoManillasVendidas = costoUnitarioManilla * manillasVendidas;
   const costoTotalEnsayos = config.costoEnsayo * numeroEnsayos;
@@ -127,10 +118,10 @@ function calcularYGenerarInforme() {
     fechaCalculo: new Date().toISOString(),
     nombreDelEvento: nombreDelEvento || "Evento Sin Nombre",
     cajaMenorInicial, totalEfectivoContadoAlFinal, efectivoRecaudadoDelEvento,
-    ingresosDatafonoBruto, ingresosDaviplata, ingresosNequi,
+    ingresosDatafono, ingresosDaviplata, ingresosNequi,
     manillasVendidas, precioCover, numeroMusicos, numeroRodies, numeroEnsayos,
     configSnapshot: { ...config },
-    valorComisionDatafono, comisionDatafonoPct, costoTransferencia, ingresosDatafonoNeto, totalIngresosBrutosEvento,
+    totalIngresosBrutosEvento,
     gastoManillasVendidas, costoTotalEnsayos, costoTotalRodies, gastosOperativosTotales, ingresoNetoOperativo,
     montoReservaBanda, ingresoDespuesReserva, montoHonorarioRecaudador,
     ingresoNetoDisponibleMusicos, honorarioPorMusico,
@@ -165,11 +156,16 @@ function renderizarInformeHTML() {
   html += `<div class="report-section"><h3>Medios de Pago Digitales:</h3>
     <p><strong>Nequi:</strong> ${formatoMoneda(ic.ingresosNequi)}</p>
     <p><strong>Daviplata:</strong> ${formatoMoneda(ic.ingresosDaviplata)}</p>
-    <p><strong>Datáfono (Bruto):</strong> ${formatoMoneda(ic.ingresosDatafonoBruto)}</p>
-    <p>Descuento Comisión Datáfono (${ic.comisionDatafonoPct}%): -${formatoMoneda(ic.valorComisionDatafono)}</p>
-    <p>Costo Transferencia Datáfono: -${formatoMoneda(ic.costoTransferencia)}</p>
-    <p><strong>Datáfono (Neto):</strong> ${formatoMoneda(ic.ingresosDatafonoNeto)}</p>
+    <p><strong>Datáfono (Neto recibido):</strong> ${formatoMoneda(ic.ingresosDatafono)}</p>
     </div>`;
+
+  if (ic.precioCover > 0) {
+    html += `<div class="report-section"><h3>Control de Manillas vs. Ingresos:</h3>
+    <p><strong>Ingreso Esperado (${ic.manillasVendidas} x ${formatoMoneda(ic.precioCover)}):</strong> ${formatoMoneda(ic.ingresoEsperadoPorCover)}</p>
+    <p><strong>Ingreso Real:</strong> ${formatoMoneda(ic.totalIngresosBrutosEvento)}</p>
+    <p><strong>Diferencia (Esperado - Real):</strong> ${formatoMoneda(ic.diferenciaIngresoEsperadoVsReal)}</p>
+    </div>`;
+  }
 
   html += `<div class="report-section"><h3>Resultados Financieros:</h3>
     <p class="total-emphasis"><strong>TOTAL INGRESOS BRUTOS:</strong> ${formatoMoneda(ic.totalIngresosBrutosEvento)}</p>
@@ -212,7 +208,7 @@ function loadHistoryToView() {
     const date = new Date(ev.savedAt).toLocaleDateString();
     tr.innerHTML = `
       <td>${date}</td>
-      <td>${ev.nombreDelEvento}</td>
+      <td>${escaparHTML(ev.nombreDelEvento)}</td>
       <td>${formatoMoneda(ev.totalIngresosBrutosEvento)}</td>
       <td><strong>${formatoMoneda(ev.ingresoNetoDisponibleMusicos)}</strong></td>
       <td>
@@ -231,7 +227,7 @@ window.borrarEvento = function (id) {
 };
 
 function guardarEventoEnDB() {
-  if (!informeCalculado || !informeCalculado.totalIngresosBrutosEvento) return;
+  if (!informeCalculado || !informeCalculado.fechaCalculo) return;
 
   try {
     window.storageManager.saveEvent(informeCalculado);
@@ -266,6 +262,12 @@ function setInputVal(id, val) {
   if (el) el.value = val;
 }
 
+function escaparHTML(texto) {
+  const div = document.createElement('div');
+  div.textContent = texto ?? '';
+  return div.innerHTML;
+}
+
 function formatoMoneda(valor) {
   return Number(valor).toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }
@@ -286,10 +288,12 @@ function generarTextoPlanoInforme() {
   t += `--- MEDIOS DIGITALES ---\n`;
   t += `Nequi: ${formatoMoneda(ic.ingresosNequi)}\n`;
   t += `Daviplata: ${formatoMoneda(ic.ingresosDaviplata)}\n`;
-  t += `Datáfono (Bruto): ${formatoMoneda(ic.ingresosDatafonoBruto)}\n`;
-  t += `Comisión Datáfono (${ic.comisionDatafonoPct}%): -${formatoMoneda(ic.valorComisionDatafono)}\n`;
-  t += `Costo Transferencia: -${formatoMoneda(ic.costoTransferencia)}\n`;
-  t += `Datáfono (Neto): ${formatoMoneda(ic.ingresosDatafonoNeto)}\n\n`;
+  t += `Datáfono (Neto recibido): ${formatoMoneda(ic.ingresosDatafono)}\n\n`;
+  if (ic.precioCover > 0) {
+    t += `--- CONTROL DE MANILLAS ---\n`;
+    t += `Ingreso Esperado (${ic.manillasVendidas} x ${formatoMoneda(ic.precioCover)}): ${formatoMoneda(ic.ingresoEsperadoPorCover)}\n`;
+    t += `Diferencia (Esperado - Real): ${formatoMoneda(ic.diferenciaIngresoEsperadoVsReal)}\n\n`;
+  }
   t += `--- GASTOS OPERATIVOS ---\n`;
   t += `Sala Ensayo (${ic.numeroEnsayos} ens): ${formatoMoneda(ic.costoTotalEnsayos)}\n`;
   t += `Manillas (${ic.manillasVendidas} und): ${formatoMoneda(ic.gastoManillasVendidas)}\n`;
@@ -323,6 +327,10 @@ function imprimirInforme() {
 
 function descargarInformePDF() {
   if (Object.keys(informeCalculado).length === 0) return;
+  if (!window.jspdf || typeof html2canvas === 'undefined') {
+    mostrarFeedback("No se pudo cargar la librería de PDF. Revisa tu conexión.", true);
+    return;
+  }
   const { jsPDF } = window.jspdf;
   const reportContent = document.getElementById('output');
   if (!reportContent) return;

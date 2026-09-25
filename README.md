@@ -7,10 +7,11 @@ Esta herramienta web permite calcular y organizar los ingresos, gastos y honorar
 ### ✨ Características
 
 *   Ingreso por múltiples métodos de pago: Nequi, Daviplata, Datáfono, Efectivo.
-*   Control de manillas vendidas vs. ingresos.
+    *   El datáfono se ingresa como **valor neto recibido** (el que muestra la app del datáfono, ya con comisiones descontadas).
+*   Control de manillas vendidas vs. ingresos (ingreso esperado por cover vs. ingreso real).
 *   Cálculo automático de:
-    *   Costos fijos (sala de ensayo, manillas, caja chica).
-    *   Comisiones (datáfono, recaudador).
+    *   Gastos operativos (sala de ensayo, manillas, utileros/rodies).
+    *   Honorarios del recaudador.
     *   Ahorro para el fondo de la banda.
     *   Repartición de honorarios por músico.
 *   **Almacenamiento local:** Guarda el historial de eventos y la configuración en el navegador.
@@ -35,11 +36,13 @@ Esta herramienta web permite calcular y organizar los ingresos, gastos y honorar
 **Opción 1: Uso Local**
 
 1.  Clona o descarga este repositorio.
-2.  Abre el archivo `legacy_v1/index.html` directamente en tu navegador web.
+2.  Abre el archivo `index.html` directamente en tu navegador web.
 
 **Opción 2: Despliegue**
 
-El repositorio está configurado para desplegarse automáticamente en un servidor FTP cada vez que se realiza un `push` a la rama `main`, utilizando GitHub Actions.
+El repositorio está configurado para desplegarse automáticamente vía FTPS cada vez que se realiza un `push` a la rama `master`, utilizando GitHub Actions. Requiere los secrets `FTP_HOST`, `FTP_USERNAME`, `FTP_PASSWORD` y `FTP_REMOTE_DIR`.
+
+> Al cambiar `index.html`, `styles.css`, `script.js` o `storage.js`, incrementa el parámetro `?v=N` en `index.html` para evitar el caché de Cloudflare.
 
 ---
 
@@ -47,11 +50,10 @@ El repositorio está configurado para desplegarse automáticamente en un servido
 
 ```
 calculadora-evento/
-├── legacy_v1/
-│   ├── index.html         # Interfaz principal de la calculadora
-│   ├── styles.css         # Estilos personalizados
-│   ├── script.js          # Lógica de la calculadora y cálculos
-│   └── storage.js         # Manejo del almacenamiento local (historial y config)
+├── index.html             # Interfaz principal de la calculadora
+├── styles.css             # Estilos personalizados
+├── script.js              # Lógica de la calculadora y cálculos
+├── storage.js             # Manejo del almacenamiento local (historial y config)
 │
 ├── .github/
 │   └── workflows/
