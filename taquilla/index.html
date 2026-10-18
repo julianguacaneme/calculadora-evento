@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Taquilla Mambo Candela</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Montserrat:wght@600;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="../styles.css?v=5">
+  <link rel="stylesheet" href="taquilla.css?v=1">
+</head>
+
+<body>
+  <header class="site-header">
+    <a href="https://julianguacaneme.com/mambo-candela" target="_blank" rel="noopener">
+      <img src="https://julianguacaneme.com/wp-content/uploads/2025/02/Logo-Mambo-Candela-2025-1-e1739552848127.png"
+        alt="Logo Mambo Candela" class="logo"
+        onerror="this.onerror=null; this.src='https://placehold.co/200x100/C8102E/FFFFFF?text=Mambo+Candela';">
+    </a>
+  </header>
+
+  <nav class="main-nav">
+    <button class="nav-btn active" data-target="section-registrar">Registrar Entrada</button>
+    <button class="nav-btn" data-target="section-resumen">Resumen</button>
+  </nav>
+
+  <main id="app-container">
+    <!-- SECCIÓN REGISTRAR -->
+    <div id="section-registrar" class="view-section active">
+      <h1>Panel de Taquilla</h1>
+
+      <div class="taq-precio">
+        <label for="precioCover">Precio por persona (cover)</label>
+        <input type="number" id="precioCover" inputmode="numeric" min="0" step="1000" placeholder="Ej: 30000">
+      </div>
+
+      <div class="taq-display">
+        <span class="taq-display-label">Personas a registrar</span>
+        <span id="cantidadDisplay" class="taq-display-num">-</span>
+        <span id="totalCobrar" class="taq-display-total"></span>
+      </div>
+
+      <div id="tecladoCantidad" class="taq-teclado"></div>
+      <button id="btnLimpiar" class="taq-btn-secundario">Limpiar selección</button>
+
+      <h3 class="taq-subtitulo">Medio de pago</h3>
+      <div class="taq-medios">
+        <button class="taq-medio medio-efectivo" data-medio="Efectivo" disabled>Efectivo</button>
+        <button class="taq-medio medio-nequi" data-medio="Nequi" disabled>Nequi</button>
+        <button class="taq-medio medio-daviplata" data-medio="Daviplata" disabled>Daviplata</button>
+        <button class="taq-medio medio-datafono" data-medio="Datáfono" disabled>Datáfono</button>
+      </div>
+
+      <div id="feedbackMessage" class="feedback-message" style="display:none;" role="alert"></div>
+    </div>
+
+    <!-- SECCIÓN RESUMEN -->
+    <div id="section-resumen" class="view-section">
+      <h2>Resumen de Entradas</h2>
+
+      <div class="taq-stats">
+        <div class="taq-stat taq-stat-total">
+          <span class="taq-stat-titulo">Total recaudado</span>
+          <span id="statRecaudado" class="taq-stat-valor"></span>
+          <span id="statPersonas" class="taq-stat-sub"></span>
+        </div>
+        <div id="statsPorMedio" class="taq-stats-medios"></div>
+      </div>
+
+      <div class="taq-acciones">
+        <button id="btnExportarCSV" class="taq-btn-secundario">Exportar CSV</button>
+        <button id="btnNuevoEvento" class="btn-delete">Iniciar nuevo evento</button>
+      </div>
+
+      <div class="table-responsive">
+        <table id="registrosTable" class="data-table">
+          <thead>
+            <tr>
+              <th>Hora</th>
+              <th>Personas</th>
+              <th>Medio</th>
+              <th>Total</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div id="registros-feedback" class="empty-state">No hay registros de entrada todavía.</div>
+    </div>
+  </main>
+
+  <script src="../storage.js?v=5"></script>
+  <script src="taquilla.js?v=1"></script>
+</body>
+
+</html>

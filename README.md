@@ -4,6 +4,19 @@ Esta herramienta web permite calcular y organizar los ingresos, gastos y honorar
 
 ---
 
+### 🧭 Paneles
+
+La app tiene dos paneles, cada uno con su propia dirección. Comparten datos por `localStorage`, así que deben usarse en el **mismo navegador y dispositivo**.
+
+| Panel | Dirección | Para qué |
+|---|---|---|
+| **Finanzas** | `/` | Calculadora, historial de eventos y configuración (liquidación). |
+| **Taquilla** | `/taquilla/` | Registro en la puerta: personas que entran y su medio de pago. |
+
+Al abrir el Panel de Finanzas, los datos de taquilla prellenan manillas vendidas, precio del cover, Nequi y Daviplata. El efectivo y el datáfono quedan como referencia y el informe incluye un **Cuadre con Taquilla** (diferencia de efectivo y comisión del datáfono). Al terminar un evento, usar **Iniciar nuevo evento** en el Panel de Taquilla.
+
+---
+
 ### ✨ Características
 
 *   Ingreso por múltiples métodos de pago: Nequi, Daviplata, Datáfono, Efectivo.
@@ -53,7 +66,8 @@ calculadora-evento/
 ├── index.html             # Interfaz principal de la calculadora
 ├── styles.css             # Estilos personalizados
 ├── script.js              # Lógica de la calculadora y cálculos
-├── storage.js             # Manejo del almacenamiento local (historial y config)
+├── storage.js             # Manejo del almacenamiento local (historial, config y taquilla)
+├── taquilla/              # Panel de Taquilla (index.html, taquilla.js, taquilla.css)
 │
 ├── .github/
 │   └── workflows/

@@ -4,6 +4,8 @@ class StorageManager {
     constructor() {
         this.configKey = 'mambo_config_v1';
         this.eventsKey = 'mambo_events_v1';
+        this.taquillaKey = 'mambo_taquilla_v1';
+        this.mediosPago = ['Efectivo', 'Nequi', 'Daviplata', 'Datáfono'];
         this.defaultConfig = {
             // Gastos
             costoEnsayo: 75000,
@@ -100,6 +102,83 @@ class StorageManager {
             console.error("Error eliminando evento:", e);
             return false;
         }
+    }
+
+    // --- TAQUILLA (evento en curso) ---
+    // Lo registra el Panel de Taquilla y lo lee el Panel de Finanzas (mismo dominio = mismo localStorage).
+    getTaquilla() {
+        const vacio = { precioCover: null, registros: [] };
+        const stored = localStorage.getItem(this.taquillaKey);
+        if (!stored) return vacio;
+        try {
+            return { ...vacio, ...JSON.parse(stored) };
+        } catch (e) {
+            console.error("Error leyendo taquilla:", e);
+            return vacio;
+        }
+    }
+
+    saveTaquilla(taquilla) {
+        try {
+            localStorage.setItem(this.taquillaKey, JSON.stringify(taquilla));
+            return true;
+        } catch (e) {
+            console.error("Error guardando taquilla:", e);
+            return false;
+        }
+    }
+
+    setPrecioCover(precio) {
+        const taquilla = this.getTaquilla();
+        taquilla.precioCover = precio;
+        return this.saveTaquilla(taquilla);
+    }
+
+    addRegistroTaquilla(cantidad, medio) {
+        const taquilla = this.getTaquilla();
+        // El precio se guarda en cada registro; cambiarlo después no altera registros previos.
+        const registro = {
+            id: Date.now().toString(36) + Math.random().toString(36).substr(2),
+            cantidad,
+            medio,
+            precioUnitario: taquilla.precioCover || 0,
+            hora: new Date().toISOString()
+        };
+        taquilla.registros.push(registro);
+        if (!this.saveTaquilla(taquilla)) throw new Error("No se pudo guardar el registro.");
+        return registro;
+    }
+
+    deleteRegistroTaquilla(registroId) {
+        const taquilla = this.getTaquilla();
+        taquilla.registros = taquilla.registros.filter(r => r.id !== registroId);
+        return this.saveTaquilla(taquilla);
+    }
+
+    // Borra los registros pero conserva el precio del cover para el siguiente evento.
+    resetTaquilla() {
+        const taquilla = this.getTaquilla();
+        return this.saveTaquilla({ precioCover: taquilla.precioCover, registros: [] });
+    }
+
+    resumenTaquilla() {
+        const { registros, precioCover } = this.getTaquilla();
+        const resumir = lista => ({
+            personas: lista.reduce((sum, r) => sum + r.cantidad, 0),
+            recaudado: lista.reduce((sum, r) => sum + r.cantidad * r.precioUnitario, 0)
+        });
+        const porMedio = {};
+        this.mediosPago.forEach(medio => {
+            porMedio[medio] = resumir(registros.filter(r => r.medio === medio));
+        });
+        return {
+            precioCover,
+            registros: registros.length,
+            total: resumir(registros),
+            porMedio,
+            // Si el precio cambió durante el evento, "personas x precio" no cuadra con lo recaudado.
+            preciosDistintos: new Set(registros.map(r => r.precioUnitario)).size > 1
+        };
     }
 }
 
