@@ -27,16 +27,6 @@ body {
   margin-right: auto;
 }
 
-.site-header {
-  text-align: center;
-  margin-bottom: 30px;
-}
-
-.logo {
-  max-width: 200px;
-  height: auto;
-}
-
 h1 {
   font-family: var(--font-heading);
   font-weight: 800;
@@ -219,6 +209,50 @@ button:hover {
   background-color: #c0392b;
 }
 
+/* Enlace al otro panel (no es una pestaña: lleva a otra dirección) */
+.panel-link {
+  align-self: center;
+  margin-left: auto;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  color: var(--color-primary);
+  text-decoration: none;
+  padding: 8px 12px;
+}
+
+.panel-link:hover {
+  text-decoration: underline;
+}
+
+/* Datos traídos del Panel de Taquilla */
+.taquilla-box {
+  background: #fdf2f4;
+  border-left: 4px solid var(--color-primary);
+  border-radius: 6px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+}
+
+.taquilla-box p {
+  margin: 6px 0;
+}
+
+.taquilla-box .btn-small {
+  margin-top: 6px;
+}
+
+.hint {
+  display: block;
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 4px;
+}
+
+.hint-warning {
+  color: #8a5a00;
+  font-weight: 700;
+}
+
 /* Configuración */
 .config-desc {
   margin-bottom: 20px;
@@ -286,6 +320,10 @@ button:hover {
   .main-nav {
     flex-wrap: wrap;
   }
+
+  .panel-link {
+    margin-left: 0;
+  }
 }
 
 /* Impresión: solo el informe */
@@ -298,6 +336,7 @@ button:hover {
   .main-nav,
   #section-calculator > h1,
   #section-calculator > .grid,
+  .taquilla-box,
   #btnCalcular,
   .feedback-message,
   .report-actions {

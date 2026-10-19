@@ -5,8 +5,12 @@ document.addEventListener('DOMContentLoaded', () => {
   initNavigation();
   loadConfigurationToView();
   loadHistoryToView();
+  cargarDatosTaquilla();
 
   // --- EVENT LISTENERS PRINCIPALES ---
+  document.getElementById('btnCargarTaquilla')?.addEventListener('click', cargarDatosTaquilla);
+  document.getElementById('cajaMenorInicial')?.addEventListener('input', actualizarHintEfectivo);
+
   const btnCalcular = document.getElementById('btnCalcular');
   if (btnCalcular) {
     btnCalcular.addEventListener('click', calcularYGenerarInforme);
@@ -23,6 +27,54 @@ document.addEventListener('DOMContentLoaded', () => {
 // --- VARIABLES GLOBALES ---
 let informeCalculado = {};
 let nombreDelEvento = "";
+let datosTaquilla = null;
+
+// --- DATOS DEL PANEL DE TAQUILLA ---
+function cargarDatosTaquilla() {
+  const resumen = window.storageManager.resumenTaquilla();
+  const box = document.getElementById('taquillaBox');
+  if (!box) return;
+
+  if (resumen.registros === 0) {
+    datosTaquilla = null;
+    box.style.display = 'none';
+    document.getElementById('hintEfectivo').textContent = '';
+    document.getElementById('hintDatafono').textContent = '';
+    return;
+  }
+
+  datosTaquilla = resumen;
+  const medios = resumen.porMedio;
+
+  setInputVal('vendidas', resumen.total.personas);
+  setInputVal('precioCover', resumen.precioCover || 0);
+  setInputVal('nequi', medios['Nequi'].recaudado);
+  setInputVal('daviplata', medios['Daviplata'].recaudado);
+  setInputVal('breb', medios['Bre-B'].recaudado);
+
+  document.getElementById('taquillaResumen').innerHTML =
+    `<strong>${resumen.total.personas}</strong> personas registradas en taquilla · ` +
+    `<strong>${formatoMoneda(resumen.total.recaudado)}</strong> recaudado`;
+
+  const aviso = document.getElementById('taquillaAviso');
+  aviso.style.display = resumen.preciosDistintos ? 'block' : 'none';
+  aviso.textContent = resumen.preciosDistintos
+    ? `El precio del cover cambió durante el evento. Se usó el precio actual (${formatoMoneda(resumen.precioCover || 0)}); el ingreso esperado puede no coincidir con lo registrado en taquilla.`
+    : '';
+
+  actualizarHintEfectivo();
+  document.getElementById('hintDatafono').textContent =
+    `Taquilla (bruto, antes de comisión): ${formatoMoneda(medios['Datáfono'].recaudado)}`;
+
+  box.style.display = 'block';
+}
+
+function actualizarHintEfectivo() {
+  if (!datosTaquilla) return;
+  const efectivo = datosTaquilla.porMedio['Efectivo'].recaudado;
+  document.getElementById('hintEfectivo').textContent =
+    `Taquilla: ${formatoMoneda(efectivo)} en efectivo (esperado en caja: ${formatoMoneda(getInputVal('cajaMenorInicial') + efectivo)})`;
+}
 
 // --- NAVEGACIÓN ---
 function initNavigation() {
@@ -81,6 +133,7 @@ function calcularYGenerarInforme() {
   const ingresosDatafono = getInputVal('datafono');
   const ingresosDaviplata = getInputVal('daviplata');
   const ingresosNequi = getInputVal('nequi');
+  const ingresosBreB = getInputVal('breb');
   const manillasVendidas = getInputVal('vendidas');
   const precioCover = getInputVal('precioCover');
   const numeroMusicos = getInputVal('musicos') || 1;
@@ -96,7 +149,7 @@ function calcularYGenerarInforme() {
   const costoUnitarioManilla = config.costoPaqueteManillas / unidadesPorPaquete;
 
   const efectivoRecaudadoDelEvento = totalEfectivoContadoAlFinal - cajaMenorInicial;
-  const totalIngresosBrutosEvento = ingresosDatafono + ingresosDaviplata + ingresosNequi + efectivoRecaudadoDelEvento;
+  const totalIngresosBrutosEvento = ingresosDatafono + ingresosDaviplata + ingresosNequi + ingresosBreB + efectivoRecaudadoDelEvento;
 
   const gastoManillasVendidas = costoUnitarioManilla * manillasVendidas;
   const costoTotalEnsayos = config.costoEnsayo * numeroEnsayos;
@@ -114,18 +167,29 @@ function calcularYGenerarInforme() {
   const ingresoEsperadoPorCover = manillasVendidas * precioCover;
   const diferenciaIngresoEsperadoVsReal = ingresoEsperadoPorCover - totalIngresosBrutosEvento;
 
+  // Cuadre contra lo registrado en la puerta (solo si hay datos del Panel de Taquilla)
+  const taquilla = datosTaquilla ? {
+    personas: datosTaquilla.total.personas,
+    recaudado: datosTaquilla.total.recaudado,
+    efectivo: datosTaquilla.porMedio['Efectivo'].recaudado,
+    datafonoBruto: datosTaquilla.porMedio['Datáfono'].recaudado,
+    diferenciaEfectivo: efectivoRecaudadoDelEvento - datosTaquilla.porMedio['Efectivo'].recaudado,
+    comisionDatafono: datosTaquilla.porMedio['Datáfono'].recaudado - ingresosDatafono
+  } : null;
+
   informeCalculado = {
     fechaCalculo: new Date().toISOString(),
     nombreDelEvento: nombreDelEvento || "Evento Sin Nombre",
     cajaMenorInicial, totalEfectivoContadoAlFinal, efectivoRecaudadoDelEvento,
-    ingresosDatafono, ingresosDaviplata, ingresosNequi,
+    ingresosDatafono, ingresosDaviplata, ingresosNequi, ingresosBreB,
     manillasVendidas, precioCover, numeroMusicos, numeroRodies, numeroEnsayos,
     configSnapshot: { ...config },
     totalIngresosBrutosEvento,
     gastoManillasVendidas, costoTotalEnsayos, costoTotalRodies, gastosOperativosTotales, ingresoNetoOperativo,
     montoReservaBanda, ingresoDespuesReserva, montoHonorarioRecaudador,
     ingresoNetoDisponibleMusicos, honorarioPorMusico,
-    ingresoEsperadoPorCover, diferenciaIngresoEsperadoVsReal
+    ingresoEsperadoPorCover, diferenciaIngresoEsperadoVsReal,
+    taquilla
   };
 
   renderizarInformeHTML();
@@ -156,6 +220,7 @@ function renderizarInformeHTML() {
   html += `<div class="report-section"><h3>Medios de Pago Digitales:</h3>
     <p><strong>Nequi:</strong> ${formatoMoneda(ic.ingresosNequi)}</p>
     <p><strong>Daviplata:</strong> ${formatoMoneda(ic.ingresosDaviplata)}</p>
+    <p><strong>Llave Bre-B:</strong> ${formatoMoneda(ic.ingresosBreB || 0)}</p>
     <p><strong>Datáfono (Neto recibido):</strong> ${formatoMoneda(ic.ingresosDatafono)}</p>
     </div>`;
 
@@ -164,6 +229,14 @@ function renderizarInformeHTML() {
     <p><strong>Ingreso Esperado (${ic.manillasVendidas} x ${formatoMoneda(ic.precioCover)}):</strong> ${formatoMoneda(ic.ingresoEsperadoPorCover)}</p>
     <p><strong>Ingreso Real:</strong> ${formatoMoneda(ic.totalIngresosBrutosEvento)}</p>
     <p><strong>Diferencia (Esperado - Real):</strong> ${formatoMoneda(ic.diferenciaIngresoEsperadoVsReal)}</p>
+    </div>`;
+  }
+
+  if (ic.taquilla) {
+    html += `<div class="report-section"><h3>Cuadre con Taquilla:</h3>
+    <p><strong>Registrado en taquilla:</strong> ${ic.taquilla.personas} personas · ${formatoMoneda(ic.taquilla.recaudado)}</p>
+    <p><strong>Efectivo (taquilla vs. contado):</strong> ${formatoMoneda(ic.taquilla.efectivo)} vs. ${formatoMoneda(ic.efectivoRecaudadoDelEvento)} · Diferencia: ${formatoMoneda(ic.taquilla.diferenciaEfectivo)}</p>
+    <p><strong>Datáfono (bruto vs. neto):</strong> ${formatoMoneda(ic.taquilla.datafonoBruto)} vs. ${formatoMoneda(ic.ingresosDatafono)} · Comisión: ${formatoMoneda(ic.taquilla.comisionDatafono)}</p>
     </div>`;
   }
 
@@ -288,11 +361,18 @@ function generarTextoPlanoInforme() {
   t += `--- MEDIOS DIGITALES ---\n`;
   t += `Nequi: ${formatoMoneda(ic.ingresosNequi)}\n`;
   t += `Daviplata: ${formatoMoneda(ic.ingresosDaviplata)}\n`;
+  t += `Llave Bre-B: ${formatoMoneda(ic.ingresosBreB || 0)}\n`;
   t += `Datáfono (Neto recibido): ${formatoMoneda(ic.ingresosDatafono)}\n\n`;
   if (ic.precioCover > 0) {
     t += `--- CONTROL DE MANILLAS ---\n`;
     t += `Ingreso Esperado (${ic.manillasVendidas} x ${formatoMoneda(ic.precioCover)}): ${formatoMoneda(ic.ingresoEsperadoPorCover)}\n`;
     t += `Diferencia (Esperado - Real): ${formatoMoneda(ic.diferenciaIngresoEsperadoVsReal)}\n\n`;
+  }
+  if (ic.taquilla) {
+    t += `--- CUADRE CON TAQUILLA ---\n`;
+    t += `Registrado: ${ic.taquilla.personas} personas, ${formatoMoneda(ic.taquilla.recaudado)}\n`;
+    t += `Diferencia efectivo (contado - taquilla): ${formatoMoneda(ic.taquilla.diferenciaEfectivo)}\n`;
+    t += `Comisión datáfono: ${formatoMoneda(ic.taquilla.comisionDatafono)}\n\n`;
   }
   t += `--- GASTOS OPERATIVOS ---\n`;
   t += `Sala Ensayo (${ic.numeroEnsayos} ens): ${formatoMoneda(ic.costoTotalEnsayos)}\n`;

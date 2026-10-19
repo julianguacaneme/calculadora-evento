@@ -4,10 +4,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Calculadora de finanzas Mambo Candela</title>
+  <title>Calculadora de finanzas</title>
   <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Montserrat:wght@600;800&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=4">
+  <link rel="stylesheet" href="styles.css?v=6">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
     integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -18,18 +18,11 @@
 </head>
 
 <body>
-  <header class="site-header">
-    <a href="https://julianguacaneme.com/mambo-candela" target="_blank" rel="noopener">
-      <img src="https://julianguacaneme.com/wp-content/uploads/2025/02/Logo-Mambo-Candela-2025-1-e1739552848127.png"
-        alt="Logo Mambo Candela" class="logo"
-        onerror="this.onerror=null; this.src='https://placehold.co/200x100/C8102E/FFFFFF?text=Mambo+Candela';">
-    </a>
-  </header>
-
   <nav class="main-nav">
     <button class="nav-btn active" data-target="section-calculator">Calculadora</button>
     <button class="nav-btn" data-target="section-history">Historial Eventos</button>
     <button class="nav-btn" data-target="section-config">Configuración</button>
+    <a class="panel-link" href="taquilla/">Panel de Taquilla →</a>
   </nav>
 
   <main id="app-container">
@@ -38,18 +31,29 @@
 
       <h1>Calculadora de finanzas</h1>
 
+      <div id="taquillaBox" class="taquilla-box" style="display:none;">
+        <div class="section-title"><strong> DATOS DE TAQUILLA </strong></div>
+        <p id="taquillaResumen"></p>
+        <p class="hint">Se cargaron manillas vendidas, precio del cover, Nequi, Daviplata y Bre-B. El efectivo y el datáfono
+          se cuentan/consultan al final; los valores de taquilla quedan como referencia para el cuadre.</p>
+        <p id="taquillaAviso" class="hint hint-warning" style="display:none;"></p>
+        <button id="btnCargarTaquilla" class="btn-small">Volver a cargar datos de taquilla</button>
+      </div>
+
       <div class="grid">
         <div class="full-width section-title"><strong> INGRESOS Y CAJA </strong></div>
         <div><label for="cajaMenorInicial">Caja Menor Inicial (Base)</label><input type="number" id="cajaMenorInicial"
             value="150000" min="0" step="1000"></div>
         <div><label for="efectivoFinal">Total Efectivo Contado al Final</label><input type="number" id="efectivoFinal"
-            value="0" min="0" step="1000"></div>
+            value="0" min="0" step="1000"><span id="hintEfectivo" class="hint"></span></div>
         <div><label for="daviplata">Ingresos por DAVIPLATA</label><input type="number" id="daviplata" value="0" min="0"
             step="1000"></div>
         <div><label for="nequi">Ingresos por NEQUI</label><input type="number" id="nequi" value="0" min="0" step="1000">
         </div>
+        <div><label for="breb">Ingresos por LLAVE BRE-B</label><input type="number" id="breb" value="0" min="0" step="1000">
+        </div>
         <div><label for="datafono">Ingresos por DATÁFONO (Neto recibido)</label><input type="number" id="datafono" value="0"
-            min="0" step="1000"></div>
+            min="0" step="1000"><span id="hintDatafono" class="hint"></span></div>
 
         <div class="full-width section-title"><strong> DATOS DE MANILLAS Y COVER </strong></div>
         <div><label for="vendidas">Manillas vendidas</label><input type="number" id="vendidas" value="0" min="0"
@@ -167,8 +171,8 @@
 
   </main> <!-- Fin app-container -->
 
-  <script src="storage.js?v=4"></script>
-  <script src="script.js?v=4"></script>
+  <script src="storage.js?v=6"></script>
+  <script src="script.js?v=6"></script>
 </body>
 
 </html>
