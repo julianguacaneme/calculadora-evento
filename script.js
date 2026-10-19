@@ -50,6 +50,7 @@ function cargarDatosTaquilla() {
   setInputVal('precioCover', resumen.precioCover || 0);
   setInputVal('nequi', medios['Nequi'].recaudado);
   setInputVal('daviplata', medios['Daviplata'].recaudado);
+  setInputVal('breb', medios['Bre-B'].recaudado);
 
   document.getElementById('taquillaResumen').innerHTML =
     `<strong>${resumen.total.personas}</strong> personas registradas en taquilla · ` +
@@ -132,6 +133,7 @@ function calcularYGenerarInforme() {
   const ingresosDatafono = getInputVal('datafono');
   const ingresosDaviplata = getInputVal('daviplata');
   const ingresosNequi = getInputVal('nequi');
+  const ingresosBreB = getInputVal('breb');
   const manillasVendidas = getInputVal('vendidas');
   const precioCover = getInputVal('precioCover');
   const numeroMusicos = getInputVal('musicos') || 1;
@@ -147,7 +149,7 @@ function calcularYGenerarInforme() {
   const costoUnitarioManilla = config.costoPaqueteManillas / unidadesPorPaquete;
 
   const efectivoRecaudadoDelEvento = totalEfectivoContadoAlFinal - cajaMenorInicial;
-  const totalIngresosBrutosEvento = ingresosDatafono + ingresosDaviplata + ingresosNequi + efectivoRecaudadoDelEvento;
+  const totalIngresosBrutosEvento = ingresosDatafono + ingresosDaviplata + ingresosNequi + ingresosBreB + efectivoRecaudadoDelEvento;
 
   const gastoManillasVendidas = costoUnitarioManilla * manillasVendidas;
   const costoTotalEnsayos = config.costoEnsayo * numeroEnsayos;
@@ -179,7 +181,7 @@ function calcularYGenerarInforme() {
     fechaCalculo: new Date().toISOString(),
     nombreDelEvento: nombreDelEvento || "Evento Sin Nombre",
     cajaMenorInicial, totalEfectivoContadoAlFinal, efectivoRecaudadoDelEvento,
-    ingresosDatafono, ingresosDaviplata, ingresosNequi,
+    ingresosDatafono, ingresosDaviplata, ingresosNequi, ingresosBreB,
     manillasVendidas, precioCover, numeroMusicos, numeroRodies, numeroEnsayos,
     configSnapshot: { ...config },
     totalIngresosBrutosEvento,
@@ -218,6 +220,7 @@ function renderizarInformeHTML() {
   html += `<div class="report-section"><h3>Medios de Pago Digitales:</h3>
     <p><strong>Nequi:</strong> ${formatoMoneda(ic.ingresosNequi)}</p>
     <p><strong>Daviplata:</strong> ${formatoMoneda(ic.ingresosDaviplata)}</p>
+    <p><strong>Llave Bre-B:</strong> ${formatoMoneda(ic.ingresosBreB || 0)}</p>
     <p><strong>Datáfono (Neto recibido):</strong> ${formatoMoneda(ic.ingresosDatafono)}</p>
     </div>`;
 
@@ -358,6 +361,7 @@ function generarTextoPlanoInforme() {
   t += `--- MEDIOS DIGITALES ---\n`;
   t += `Nequi: ${formatoMoneda(ic.ingresosNequi)}\n`;
   t += `Daviplata: ${formatoMoneda(ic.ingresosDaviplata)}\n`;
+  t += `Llave Bre-B: ${formatoMoneda(ic.ingresosBreB || 0)}\n`;
   t += `Datáfono (Neto recibido): ${formatoMoneda(ic.ingresosDatafono)}\n\n`;
   if (ic.precioCover > 0) {
     t += `--- CONTROL DE MANILLAS ---\n`;

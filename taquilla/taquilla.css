@@ -47,12 +47,25 @@ h2 {
   min-height: 1.3em;
 }
 
+/* Teclado de personas y medios de pago lado a lado */
+.taq-panel {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  max-width: 600px;
+  margin: 0 auto 20px;
+}
+
+.taq-col {
+  display: flex;
+  flex-direction: column;
+}
+
 .taq-teclado {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 10px;
-  max-width: 480px;
-  margin: 0 auto 12px;
+  flex: 1;
 }
 
 .taq-teclado button {
@@ -81,7 +94,7 @@ h2 {
 }
 
 #btnLimpiar {
-  max-width: 480px;
+  max-width: 320px;
   margin: 0 auto 24px;
 }
 
@@ -93,14 +106,14 @@ h2 {
 
 .taq-medios {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 20px;
+  grid-template-rows: repeat(5, 1fr);
+  gap: 10px;
+  flex: 1;
 }
 
 .taq-medio {
   margin: 0;
-  padding: 20px 8px;
+  padding: 12px 8px;
   font-size: 1.2rem;
 }
 
@@ -115,6 +128,8 @@ h2 {
 .medio-nequi:hover:not(:disabled) { background: #4a148c; }
 .medio-daviplata { background: #d32f2f; }
 .medio-daviplata:hover:not(:disabled) { background: #b71c1c; }
+.medio-breb { background: #00838f; }
+.medio-breb:hover:not(:disabled) { background: #006064; }
 .medio-datafono { background: #1565c0; }
 .medio-datafono:hover:not(:disabled) { background: #0d47a1; }
 
@@ -186,6 +201,14 @@ h2 {
 }
 
 @media (max-width: 600px) {
+  .taq-panel {
+    gap: 10px;
+  }
+
+  .taq-medio {
+    font-size: 1rem;
+  }
+
   .taq-acciones {
     grid-template-columns: 1fr;
   }

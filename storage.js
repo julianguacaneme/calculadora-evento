@@ -5,7 +5,7 @@ class StorageManager {
         this.configKey = 'mambo_config_v1';
         this.eventsKey = 'mambo_events_v1';
         this.taquillaKey = 'mambo_taquilla_v1';
-        this.mediosPago = ['Efectivo', 'Nequi', 'Daviplata', 'Datáfono'];
+        this.mediosPago = ['Efectivo', 'Bre-B', 'Nequi', 'Daviplata', 'Datáfono'];
         this.defaultConfig = {
             // Gastos
             costoEnsayo: 75000,
