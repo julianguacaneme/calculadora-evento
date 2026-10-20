@@ -1,1 +1,4 @@
 .DS_Store
+api/config.php
+api/datos/*.sqlite*
+api/datos/.ht*.sqlite*

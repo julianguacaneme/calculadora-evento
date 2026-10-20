@@ -1,0 +1,323 @@
+/* Panel de Preventa y página de boleta. */
+
+h2 {
+  font-family: var(--font-heading);
+  text-align: center;
+  color: var(--color-primary);
+}
+
+select,
+input[type="tel"],
+input[type="date"],
+input[type="password"] {
+  width: 100%;
+  padding: 8px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-family: var(--font-body);
+  background: #fff;
+}
+
+.pv-btn-sec {
+  background: var(--color-secondary);
+}
+
+.pv-btn-sec:hover {
+  background: #111;
+}
+
+.pv-subtitulo {
+  font-family: var(--font-heading);
+  text-align: center;
+  margin: 10px 0 6px;
+}
+
+button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+/* Acceso */
+.pv-login {
+  max-width: 320px;
+  margin: 40px auto;
+}
+
+.pv-login input {
+  font-size: 1.5rem;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.pv-evento-selector {
+  max-width: 480px;
+  margin: 0 auto 20px;
+}
+
+/* Venta */
+.pv-check {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.pv-check input {
+  margin-top: 4px;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.pv-check label {
+  font-family: var(--font-body);
+  font-weight: 400;
+}
+
+.pv-total {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #f8f8f8;
+  border-radius: 8px;
+  padding: 16px;
+  max-width: 320px;
+  margin: 0 auto 20px;
+  font-family: var(--font-heading);
+  font-weight: 600;
+}
+
+.pv-total-valor {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--color-primary);
+}
+
+/* Vendidas */
+.pv-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.pv-stat {
+  display: flex;
+  flex-direction: column;
+  background: #f8f8f8;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-family: var(--font-heading);
+  font-weight: 600;
+}
+
+.pv-stat strong {
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+.pv-stat-principal {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.pv-etapas-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.pv-chip {
+  background: #fdf2f4;
+  color: var(--color-primary);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.pv-filtros {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.pv-filtros input {
+  flex: 1;
+}
+
+.pv-filtros button {
+  margin: 0;
+  padding: 10px 14px;
+  font-size: 0.9rem;
+}
+
+.data-table code,
+.pv-codigo {
+  font-family: ui-monospace, Menlo, monospace;
+  letter-spacing: 0.05em;
+}
+
+.data-table .hint {
+  margin-top: 2px;
+}
+
+.pv-anulada td {
+  color: #999;
+  text-decoration: line-through;
+}
+
+.pv-anulada td:last-child,
+.pv-anulada td:nth-child(5) {
+  text-decoration: none;
+}
+
+.pv-estado {
+  display: inline-block;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  background: #eee;
+  white-space: nowrap;
+}
+
+.pv-estado-ok { background: #d4edda; color: #155724; }
+.pv-estado-parcial { background: #fff3cd; color: #8a5a00; }
+.pv-estado-anulada { background: #f8d7da; color: #721c24; }
+
+/* Eventos y etapas */
+.pv-etapa-fila {
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.pv-etapa-campos {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1.3fr;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.pv-etapa-beneficio {
+  grid-column: 1 / -1;
+}
+
+.pv-form-acciones {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.pv-form-acciones button {
+  margin: 0;
+}
+
+.pv-evento-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  background: #f8f8f8;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 10px;
+}
+
+.pv-cerrar {
+  margin-top: 30px;
+}
+
+/* Detalle de boleta */
+.pv-dialogo {
+  border: none;
+  border-radius: 12px;
+  padding: 20px;
+  width: min(420px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+}
+
+.pv-dialogo::backdrop {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.pv-dialogo h2 {
+  margin-top: 0;
+}
+
+.pv-qr {
+  display: flex;
+  justify-content: center;
+  padding: 12px;
+  background: #fff;
+}
+
+.pv-qr img,
+.pv-qr canvas {
+  max-width: 100%;
+  height: auto;
+}
+
+.pv-codigo {
+  text-align: center;
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 4px 0 16px;
+}
+
+.pv-detalle {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 12px;
+  margin: 0 0 16px;
+}
+
+.pv-detalle dt {
+  font-family: var(--font-heading);
+  font-weight: 600;
+}
+
+.pv-detalle dd {
+  margin: 0;
+}
+
+.pv-dialogo-acciones {
+  display: grid;
+  gap: 8px;
+}
+
+.pv-dialogo-acciones button {
+  margin: 0;
+}
+
+.pv-btn-wa {
+  background: #1fa855;
+}
+
+.pv-btn-wa:hover:not(:disabled) {
+  background: #178a45;
+}
+
+@media (max-width: 600px) {
+  .pv-etapa-campos {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .pv-etapa-campos > div:first-child {
+    grid-column: 1 / -1;
+  }
+
+  .pv-filtros {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: 8px 6px;
+  }
+}

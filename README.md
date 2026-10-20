@@ -11,9 +11,29 @@ La app tiene dos paneles, cada uno con su propia dirección. Comparten datos por
 | Panel | Dirección | Para qué |
 |---|---|---|
 | **Finanzas** | `/` | Calculadora, historial de eventos y configuración (liquidación). |
-| **Taquilla** | `/taquilla/` | Registro en la puerta: personas que entran y su medio de pago. |
+| **Taquilla** | `/taquilla/` | Registro en la puerta: personas que entran y su medio de pago. Pestaña **Preventa (QR)** para validar boletas. |
+| **Preventa** | `/preventa/` | Venta de boletas con QR, datos de compradores, etapas de precio y beneficios. |
+| **Boleta** | `/boleta/?c=CÓDIGO` | Página pública con el QR que recibe el comprador. |
 
 Al abrir el Panel de Finanzas, los datos de taquilla prellenan manillas vendidas, precio del cover, Nequi, Daviplata y Bre-B. El efectivo y el datáfono quedan como referencia y el informe incluye un **Cuadre con Taquilla** (diferencia de efectivo y comisión del datáfono). Al terminar un evento, usar **Iniciar nuevo evento** en el Panel de Taquilla.
+
+---
+
+### 🎟️ Preventa de boletas
+
+A diferencia de Finanzas y Taquilla, la preventa guarda sus datos **en el servidor** (`api/`, PHP + SQLite), porque se vende desde un celular y se valida desde otro.
+
+1.  **Eventos** (Panel de Preventa): crea el evento con su cupo y sus etapas de venta (p. ej. *Early bird* $15.000 para los primeros 50 con coctel de bienvenida, *Preventa* $20.000). Cada etapa puede tener precio, cupo, fecha límite y beneficio.
+2.  **Vender:** después de confirmar el pago (Nequi, Bre-B, Bold, etc.), registra los datos del comprador. Se genera un código único con QR y el botón **Enviar por WhatsApp** abre el chat con el link de la boleta.
+3.  **Puerta:** en Taquilla → **Preventa (QR)**, con el PIN de la puerta, se escanea el QR con la cámara o se busca por nombre/cédula. Muestra si la boleta es válida, si ya ingresó o si fue anulada, permite dejar entrar a parte del grupo y marcar el beneficio entregado.
+    *   **Sin señal:** la lista de boletas queda guardada en el celular; los ingresos se envían al servidor cuando vuelve la conexión. Abre la pestaña con internet antes de que empiece el evento.
+    *   La cámara requiere `https` (en el sitio publicado funciona; en la red local por `http` no).
+
+4.  **Finanzas:** el bloque **Datos de preventa** (con el PIN de administrador) carga los ingresos de preventa y las personas que ingresaron con boleta. Los ingresos se suman al total, esas personas cuentan en el costo de manillas (no en el ingreso esperado por cover) y el informe muestra la asistencia, el desglose por medio de pago y la diferencia entre lo registrado y lo recibido (comisiones). Los pagos de preventa no se deben sumar otra vez en Nequi, Bre-B, etc.
+
+**Configuración (una sola vez):** crea en GitHub los secrets `PREVENTA_PIN_ADMIN` (Panel de Preventa) y `PREVENTA_PIN_PUERTA` (escáner). El deploy genera `api/config.php` con ellos. La base de datos se crea sola en `api/datos/` (protegida con `.htaccess`, nunca se sube a git). Hosting requerido: PHP 7.4+ con `pdo_sqlite`.
+
+**Prueba local:** `php -S 127.0.0.1:8765` en la raíz, con un `api/config.php` copiado de `api/config.ejemplo.php`.
 
 ---
 
@@ -67,7 +87,11 @@ gestor-eventos/
 ├── styles.css             # Estilos personalizados
 ├── script.js              # Lógica de la calculadora y cálculos
 ├── storage.js             # Manejo del almacenamiento local (historial, config y taquilla)
-├── taquilla/              # Panel de Taquilla (index.html, taquilla.js, taquilla.css)
+├── taquilla/              # Panel de Taquilla (index.html, taquilla.js, escaner.js, taquilla.css)
+├── preventa/              # Panel de Preventa (venta de boletas)
+├── boleta/                # Página pública de la boleta con QR
+├── api/                   # API de preventa (PHP + SQLite); datos/ guarda la base
+├── lib/                   # Cliente de la API y librerías de QR (qrcodejs, html5-qrcode)
 │
 ├── .github/
 │   └── workflows/

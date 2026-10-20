@@ -353,3 +353,31 @@ button:hover {
     break-inside: avoid;
   }
 }
+
+/* Datos traídos de la Preventa */
+.preventa-fila {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin: 8px 0;
+}
+
+.preventa-fila input,
+.preventa-fila select {
+  flex: 1;
+  width: auto;
+  padding: 6px 8px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  font-family: var(--font-body);
+  background: #fff;
+}
+
+.preventa-fila .btn-small {
+  margin: 0;
+}
+
+#preventaBox > .btn-small {
+  margin-top: 6px;
+}
