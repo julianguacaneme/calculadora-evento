@@ -14,6 +14,24 @@ jobs:
       - name: 🔍 Checkout del repositorio
         uses: actions/checkout@v5
 
+      # Los PIN van en base64 para que ningún carácter rompa el archivo PHP.
+      - name: 🔑 Generar configuración de la preventa
+        env:
+          PIN_ADMIN: ${{ secrets.PREVENTA_PIN_ADMIN }}
+          PIN_PUERTA: ${{ secrets.PREVENTA_PIN_PUERTA }}
+        run: |
+          if [ -z "$PIN_ADMIN" ] || [ -z "$PIN_PUERTA" ]; then
+            echo "::warning::Faltan los secrets PREVENTA_PIN_ADMIN / PREVENTA_PIN_PUERTA; la preventa quedará deshabilitada."
+            exit 0
+          fi
+          cat > api/config.php <<EOF
+          <?php
+          return [
+              'pin_admin' => base64_decode('$(printf '%s' "$PIN_ADMIN" | base64 -w0)'),
+              'pin_puerta' => base64_decode('$(printf '%s' "$PIN_PUERTA" | base64 -w0)'),
+          ];
+          EOF
+
       - name: 📤 Subir archivos por FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:

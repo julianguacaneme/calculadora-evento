@@ -8,12 +8,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Montserrat:wght@600;800&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="../styles.css?v=6">
-  <link rel="stylesheet" href="taquilla.css?v=3">
+  <link rel="stylesheet" href="taquilla.css?v=4">
 </head>
 
 <body>
   <nav class="main-nav">
     <button class="nav-btn active" data-target="section-registrar">Registrar Entrada</button>
+    <button class="nav-btn" data-target="section-escanear">Preventa (QR)</button>
     <button class="nav-btn" data-target="section-resumen">Resumen</button>
   </nav>
 
@@ -54,6 +55,38 @@
       <div id="feedbackMessage" class="feedback-message" style="display:none;" role="alert"></div>
     </div>
 
+    <!-- SECCIÓN ESCANEAR (boletas de preventa) -->
+    <div id="section-escanear" class="view-section">
+      <h1>Boletas de preventa</h1>
+
+      <form id="esc-login" class="esc-login" style="display:none;">
+        <label for="esc-pin">PIN de la puerta</label>
+        <input type="password" id="esc-pin" inputmode="numeric" autocomplete="current-password" required>
+        <button type="submit">Entrar</button>
+        <div id="esc-login-feedback" class="feedback-message error" style="display:none;" role="alert"></div>
+      </form>
+
+      <div id="esc-app" style="display:none;">
+        <div class="esc-barra">
+          <select id="esc-evento" aria-label="Evento"></select>
+          <button type="button" id="esc-actualizar" class="taq-btn-secundario">Actualizar</button>
+        </div>
+        <p id="esc-estado" class="esc-estado"></p>
+
+        <div id="esc-resultado" class="esc-resultado" style="display:none;"></div>
+
+        <div id="esc-lector" class="esc-lector"></div>
+        <button type="button" id="esc-camara">Escanear QR</button>
+
+        <label for="esc-buscar">Buscar sin QR (nombre, cédula o código)</label>
+        <input type="text" id="esc-buscar" autocomplete="off">
+        <div id="esc-busqueda" class="esc-busqueda"></div>
+
+        <p id="esc-progreso" class="esc-progreso"></p>
+        <button type="button" id="esc-salir" class="taq-btn-secundario esc-salir">Cerrar sesión de la puerta</button>
+      </div>
+    </div>
+
     <!-- SECCIÓN RESUMEN -->
     <div id="section-resumen" class="view-section">
       <h2>Resumen de Entradas</h2>
@@ -92,6 +125,9 @@
 
   <script src="../storage.js?v=6"></script>
   <script src="taquilla.js?v=1"></script>
+  <script src="../lib/html5-qrcode.min.js"></script>
+  <script src="../lib/preventa-api.js?v=1"></script>
+  <script src="escaner.js?v=1"></script>
 </body>
 
 </html>

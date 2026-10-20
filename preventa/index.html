@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>Panel de Preventa</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Montserrat:wght@600;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="../styles.css?v=6">
+  <link rel="stylesheet" href="preventa.css?v=1">
+</head>
+
+<body>
+  <!-- ACCESO -->
+  <div id="pantallaLogin" class="pv-login">
+    <h1>Panel de Preventa</h1>
+    <form id="formLogin">
+      <label for="pinLogin">PIN de administrador</label>
+      <input type="password" id="pinLogin" inputmode="numeric" autocomplete="current-password" required>
+      <button type="submit">Entrar</button>
+    </form>
+    <div id="loginFeedback" class="feedback-message error" style="display:none;" role="alert"></div>
+  </div>
+
+  <div id="pantallaApp" style="display:none;">
+    <nav class="main-nav">
+      <button class="nav-btn active" data-target="section-vender">Vender</button>
+      <button class="nav-btn" data-target="section-vendidas">Vendidas</button>
+      <button class="nav-btn" data-target="section-eventos">Eventos</button>
+      <a class="panel-link" href="../taquilla/">Taquilla →</a>
+    </nav>
+
+    <main id="app-container">
+      <div class="pv-evento-selector">
+        <label for="selectEvento">Evento</label>
+        <select id="selectEvento"></select>
+      </div>
+
+      <div id="feedbackMessage" class="feedback-message" style="display:none;" role="alert"></div>
+
+      <!-- SECCIÓN VENDER -->
+      <div id="section-vender" class="view-section active">
+        <h1>Registrar venta</h1>
+        <p class="config-desc">Registra la venta después de confirmar el pago. Se genera la boleta con su QR para enviarla por WhatsApp.</p>
+
+        <form id="formVenta">
+          <div class="grid">
+            <div class="full-width">
+              <label for="selectEtapa">Etapa de venta</label>
+              <select id="selectEtapa" required></select>
+              <span id="etapaInfo" class="hint"></span>
+            </div>
+            <div>
+              <label for="ventaCantidad">Cantidad de entradas</label>
+              <input type="number" id="ventaCantidad" inputmode="numeric" min="1" max="50" value="1" required>
+            </div>
+            <div>
+              <label for="ventaPrecio">Precio por entrada</label>
+              <input type="number" id="ventaPrecio" inputmode="numeric" min="0" step="1000" required>
+              <span class="hint">Por defecto, el de la etapa. Puedes ajustarlo (descuento o cortesía).</span>
+            </div>
+            <div class="full-width">
+              <label for="ventaNombre">Nombre del comprador</label>
+              <input type="text" id="ventaNombre" autocomplete="off" required>
+            </div>
+            <div>
+              <label for="ventaCedula">Cédula</label>
+              <input type="text" id="ventaCedula" inputmode="numeric" autocomplete="off">
+            </div>
+            <div>
+              <label for="ventaWhatsapp">WhatsApp</label>
+              <input type="tel" id="ventaWhatsapp" inputmode="tel" placeholder="300 123 4567" autocomplete="off" required>
+            </div>
+            <div class="full-width">
+              <label for="ventaEmail">Correo (opcional)</label>
+              <input type="email" id="ventaEmail" autocomplete="off">
+            </div>
+            <div>
+              <label for="ventaMedio">Medio de pago</label>
+              <select id="ventaMedio" required>
+                <option value="Nequi">Nequi</option>
+                <option value="Bre-B">Llave Bre-B</option>
+                <option value="Bold">Link de pago Bold</option>
+                <option value="Daviplata">Daviplata</option>
+                <option value="Transferencia">Transferencia bancaria</option>
+                <option value="Efectivo">Efectivo</option>
+                <option value="Cortesía">Cortesía</option>
+              </select>
+            </div>
+            <div>
+              <label for="ventaReferencia">Referencia del pago</label>
+              <input type="text" id="ventaReferencia" placeholder="N.º de comprobante" autocomplete="off">
+            </div>
+            <div class="full-width">
+              <label for="ventaNotas">Notas (opcional)</label>
+              <input type="text" id="ventaNotas" autocomplete="off">
+            </div>
+            <div class="full-width pv-check">
+              <input type="checkbox" id="ventaAcepta" required>
+              <label for="ventaAcepta">El comprador autorizó el tratamiento de sus datos personales para gestionar su entrada y recibir información del evento (Ley 1581 de 2012).</label>
+            </div>
+          </div>
+
+          <div class="pv-total">
+            <span>Total a cobrar</span>
+            <span id="ventaTotal" class="pv-total-valor">$ 0</span>
+          </div>
+          <button type="submit" id="btnVender">Registrar venta y generar boleta</button>
+        </form>
+      </div>
+
+      <!-- SECCIÓN VENDIDAS -->
+      <div id="section-vendidas" class="view-section">
+        <h2>Boletas vendidas</h2>
+        <div id="statsVentas" class="pv-stats"></div>
+        <div id="statsEtapas" class="pv-etapas-stats"></div>
+
+        <div class="pv-filtros">
+          <input type="text" id="buscarBoleta" placeholder="Buscar por nombre, cédula, WhatsApp o código">
+          <button id="btnExportarCSV" class="pv-btn-sec btn-small">Exportar CSV</button>
+        </div>
+
+        <div class="table-responsive">
+          <table id="boletasTable" class="data-table">
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Comprador</th>
+                <th>Entradas</th>
+                <th>Total</th>
+                <th>Estado</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div id="boletas-feedback" class="empty-state">Aún no hay boletas vendidas para este evento.</div>
+      </div>
+
+      <!-- SECCIÓN EVENTOS -->
+      <div id="section-eventos" class="view-section">
+        <h2 id="tituloFormEvento">Nuevo evento</h2>
+        <form id="formEvento">
+          <input type="hidden" id="eventoId">
+          <div class="grid">
+            <div class="full-width">
+              <label for="eventoNombre">Nombre del evento</label>
+              <input type="text" id="eventoNombre" required>
+            </div>
+            <div>
+              <label for="eventoFecha">Fecha</label>
+              <input type="date" id="eventoFecha" required>
+            </div>
+            <div>
+              <label for="eventoCupo">Cupo total (personas)</label>
+              <input type="number" id="eventoCupo" inputmode="numeric" min="0" placeholder="Sin límite">
+            </div>
+            <div class="full-width">
+              <label for="eventoLugar">Lugar</label>
+              <input type="text" id="eventoLugar">
+            </div>
+          </div>
+
+          <h3 class="pv-subtitulo">Etapas de venta</h3>
+          <p class="config-desc">Se sugiere la primera etapa que siga vigente (antes de su fecha límite y con cupo). El beneficio aparece en la boleta y en el escáner de la puerta.</p>
+          <div id="etapasLista"></div>
+          <button type="button" id="btnAgregarEtapa" class="pv-btn-sec">+ Agregar etapa</button>
+
+          <div class="pv-form-acciones">
+            <button type="submit">Guardar evento</button>
+            <button type="button" id="btnCancelarEvento" class="pv-btn-sec" style="display:none;">Cancelar edición</button>
+          </div>
+        </form>
+
+        <h2>Eventos</h2>
+        <div id="eventosLista"></div>
+        <button type="button" id="btnCerrarSesion" class="pv-btn-sec pv-cerrar">Cerrar sesión</button>
+      </div>
+    </main>
+  </div>
+
+  <!-- Boleta recién creada / detalle -->
+  <dialog id="dialogoBoleta" class="pv-dialogo">
+    <div id="dialogoContenido"></div>
+    <div class="pv-dialogo-acciones">
+      <button type="button" id="btnEnviarWA" class="pv-btn-wa">Enviar por WhatsApp</button>
+      <button type="button" id="btnCopiarLink" class="pv-btn-sec">Copiar link</button>
+      <button type="button" id="btnAnular" class="btn-delete">Anular boleta</button>
+      <button type="button" id="btnCerrarDialogo" class="pv-btn-sec">Cerrar</button>
+    </div>
+  </dialog>
+
+  <script src="../lib/qrcode.min.js"></script>
+  <script src="../lib/preventa-api.js?v=1"></script>
+  <script src="preventa.js?v=1"></script>
+</body>
+
+</html>

@@ -213,3 +213,183 @@ h2 {
     grid-template-columns: 1fr;
   }
 }
+
+/* Escáner de boletas de preventa */
+.esc-login {
+  max-width: 320px;
+  margin: 0 auto;
+}
+
+.esc-login input {
+  font-size: 1.5rem;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+input[type="password"],
+select {
+  width: 100%;
+  padding: 8px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-family: var(--font-body);
+  background: #fff;
+}
+
+.esc-barra {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.esc-barra select {
+  flex: 1;
+}
+
+.esc-barra button {
+  width: auto;
+  margin: 0;
+  padding: 8px 14px;
+  font-size: 0.95rem;
+}
+
+.esc-estado {
+  font-size: 0.85rem;
+  color: #666;
+  margin: 8px 0 16px;
+}
+
+.esc-lector {
+  max-width: 420px;
+  margin: 0 auto 12px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.esc-resultado {
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+  text-align: center;
+  color: #fff;
+}
+
+.esc-resultado p {
+  margin: 6px 0;
+}
+
+.esc-resultado .hint {
+  color: inherit;
+  opacity: 0.85;
+}
+
+.esc-valida { background: #2e7d32; }
+.esc-usada { background: #e65100; }
+.esc-invalida { background: #b71c1c; }
+
+.esc-titulo {
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  font-weight: 800;
+}
+
+.esc-nombre {
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.esc-beneficio {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  padding: 8px;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.esc-cantidades {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin: 8px 0 12px;
+}
+
+.esc-cantidades button {
+  width: 56px;
+  margin: 0;
+  padding: 12px 0;
+  font-size: 1.3rem;
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.esc-cantidades button.active {
+  background: #fff;
+  color: #2e7d32;
+}
+
+.esc-check {
+  color: #fff;
+  font-size: 1.1rem;
+  margin-bottom: 12px;
+}
+
+.esc-check input {
+  width: 20px;
+  height: 20px;
+  vertical-align: middle;
+}
+
+.esc-confirmar {
+  background: #fff;
+  color: #2e7d32;
+  font-size: 1.3rem;
+  margin-bottom: 12px;
+}
+
+.esc-confirmar:hover {
+  background: #e8f5e9;
+}
+
+.esc-resultado .btn-small {
+  margin: 0 0 12px;
+}
+
+.esc-resultado [data-siguiente] {
+  margin-bottom: 0;
+}
+
+.esc-busqueda {
+  margin: 10px 0 20px;
+}
+
+.esc-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  background: #f8f8f8;
+  color: var(--color-secondary);
+  font-size: 1rem;
+  margin-bottom: 8px;
+}
+
+.esc-item:hover {
+  background: #eee;
+}
+
+.esc-item span {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 0.9rem;
+}
+
+.esc-progreso {
+  text-align: center;
+  font-weight: 700;
+}
+
+.esc-salir {
+  margin-top: 30px;
+}

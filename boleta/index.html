@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>Tu boleta</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Montserrat:wght@600;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="../styles.css?v=6">
+  <link rel="stylesheet" href="../preventa/preventa.css?v=1">
+  <style>
+    .bl-boleta {
+      max-width: 420px;
+      margin: 0 auto;
+      border: 2px dashed var(--color-primary);
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .bl-boleta h1, .bl-boleta h2 {
+      overflow-wrap: anywhere;
+    }
+
+    .bl-evento {
+      margin-bottom: 4px;
+    }
+
+    .bl-sub {
+      color: #666;
+      margin: 0 0 12px;
+    }
+
+    .bl-beneficio {
+      background: #fdf2f4;
+      border-radius: 8px;
+      padding: 10px;
+      font-weight: 700;
+      margin: 12px 0;
+    }
+
+    .bl-aviso {
+      font-size: 0.9rem;
+      color: #666;
+    }
+
+    .bl-estado {
+      font-family: var(--font-heading);
+      font-weight: 800;
+      font-size: 1.2rem;
+      border-radius: 8px;
+      padding: 10px;
+      margin: 12px 0;
+    }
+  </style>
+</head>
+
+<body>
+  <main id="boleta" class="bl-boleta">
+    <p>Cargando tu boleta…</p>
+  </main>
+
+  <script src="../lib/qrcode.min.js"></script>
+  <script src="../lib/preventa-api.js?v=1"></script>
+  <script>
+    (async () => {
+      const cont = document.getElementById('boleta');
+      const codigo = PreventaAPI.extraerCodigo(new URLSearchParams(location.search).get('c'));
+      const esc = (t) => { const d = document.createElement('div'); d.textContent = t ?? ''; return d.innerHTML; };
+
+      if (!codigo) {
+        cont.innerHTML = '<h1>Boleta no encontrada</h1><p>Revisa el link que te enviaron.</p>';
+        return;
+      }
+
+      let b;
+      try {
+        b = await window.preventaAPI.llamar('boleta', { params: { c: codigo } });
+      } catch (err) {
+        cont.innerHTML = `<h1>${err.status === 404 ? 'Boleta no encontrada' : 'No se pudo cargar'}</h1><p>${esc(err.status === 404 ? 'Revisa el link que te enviaron.' : err.message)}</p>`;
+        return;
+      }
+
+      const ev = b.evento;
+      const fecha = ev.fecha ? new Date(ev.fecha + 'T00:00:00').toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : '';
+      let estado = '';
+      if (b.estado === 'anulada') estado = '<div class="bl-estado pv-estado-anulada">Esta boleta fue anulada</div>';
+      else if (b.ingresados >= b.cantidad) estado = '<div class="bl-estado pv-estado-ok">Boleta ya usada ✔</div>';
+      else if (b.ingresados > 0) estado = `<div class="bl-estado pv-estado-parcial">Ingresaron ${b.ingresados} de ${b.cantidad}</div>`;
+
+      document.title = `Boleta · ${ev.nombre}`;
+      cont.innerHTML = `
+        <h1 class="bl-evento">${esc(ev.nombre)}</h1>
+        <p class="bl-sub">${esc([fecha, ev.lugar].filter(Boolean).join(' · '))}</p>
+        <h2>${esc(b.nombre)}</h2>
+        <p><strong>${b.cantidad} entrada(s)</strong> · ${esc(b.etapa || '')}</p>
+        ${estado}
+        <div class="pv-qr" id="qr"></div>
+        <p class="pv-codigo">${PreventaAPI.formatoCodigo(b.codigo)}</p>
+        ${b.beneficio ? `<div class="bl-beneficio">🎁 ${esc(b.beneficio)}</div>` : ''}
+        <p class="bl-aviso">Presenta este QR en la entrada (puedes tomarle captura de pantalla). Es personal: quien lo presente primero podrá ingresar.</p>
+      `;
+      if (b.estado === 'activa') {
+        new QRCode(document.getElementById('qr'), { text: window.preventaAPI.urlBoleta(b.codigo), width: 240, height: 240, correctLevel: QRCode.CorrectLevel.M });
+      }
+    })();
+  </script>
+</body>
+
+</html>
