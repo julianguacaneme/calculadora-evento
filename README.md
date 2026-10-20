@@ -1,6 +1,6 @@
-## 📊 Calculadora de Finanzas para Eventos – Mambo Candela
+## 📊 Gestor de Eventos – Mambo Candela
 
-Esta herramienta web permite calcular y organizar los ingresos, gastos y honorarios de músicos para las presentaciones en vivo de la banda **Mambo Candela**. Es una aplicación 100% del lado del cliente (frontend) diseñada para ser fácil de usar, ofrecer un informe detallado y funcionar sin necesidad de un backend.
+Esta herramienta web reúne la taquilla y las finanzas de cada evento: permite registrar las entradas en la puerta y calcular y organizar los ingresos, gastos y honorarios de músicos para las presentaciones en vivo de la banda **Mambo Candela**. Es una aplicación 100% del lado del cliente (frontend) diseñada para ser fácil de usar, ofrecer un informe detallado y funcionar sin necesidad de un backend.
 
 ---
 
@@ -62,7 +62,7 @@ El repositorio está configurado para desplegarse automáticamente vía FTPS cad
 ### 📁 Estructura del Proyecto
 
 ```
-calculadora-evento/
+gestor-eventos/
 ├── index.html             # Interfaz principal de la calculadora
 ├── styles.css             # Estilos personalizados
 ├── script.js              # Lógica de la calculadora y cálculos
