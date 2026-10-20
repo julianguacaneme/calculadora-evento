@@ -29,6 +29,8 @@ A diferencia de Finanzas y Taquilla, la preventa guarda sus datos **en el servid
     *   **Sin señal:** la lista de boletas queda guardada en el celular; los ingresos se envían al servidor cuando vuelve la conexión. Abre la pestaña con internet antes de que empiece el evento.
     *   La cámara requiere `https` (en el sitio publicado funciona; en la red local por `http` no).
 
+4.  **Finanzas:** el bloque **Datos de preventa** (con el PIN de administrador) carga los ingresos de preventa y las personas que ingresaron con boleta. Los ingresos se suman al total, esas personas cuentan en el costo de manillas (no en el ingreso esperado por cover) y el informe muestra la asistencia, el desglose por medio de pago y la diferencia entre lo registrado y lo recibido (comisiones). Los pagos de preventa no se deben sumar otra vez en Nequi, Bre-B, etc.
+
 **Configuración (una sola vez):** crea en GitHub los secrets `PREVENTA_PIN_ADMIN` (Panel de Preventa) y `PREVENTA_PIN_PUERTA` (escáner). El deploy genera `api/config.php` con ellos. La base de datos se crea sola en `api/datos/` (protegida con `.htaccess`, nunca se sube a git). Hosting requerido: PHP 7.4+ con `pdo_sqlite`.
 
 **Prueba local:** `php -S 127.0.0.1:8765` en la raíz, con un `api/config.php` copiado de `api/config.ejemplo.php`.

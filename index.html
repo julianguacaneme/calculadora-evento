@@ -7,7 +7,7 @@
   <title>Gestor de eventos – Finanzas</title>
   <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Montserrat:wght@600;800&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=6">
+  <link rel="stylesheet" href="styles.css?v=7">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
     integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -22,7 +22,7 @@
     <button class="nav-btn active" data-target="section-calculator">Calculadora</button>
     <button class="nav-btn" data-target="section-history">Historial Eventos</button>
     <button class="nav-btn" data-target="section-config">Configuración</button>
-    <a class="panel-link" href="taquilla/">Panel de Taquilla →</a>
+    <a class="panel-link" href="taquilla/">Taquilla →</a>
     <a class="panel-link" href="preventa/" style="margin-left:0">Preventa →</a>
   </nav>
 
@@ -41,6 +41,26 @@
         <button id="btnCargarTaquilla" class="btn-small">Volver a cargar datos de taquilla</button>
       </div>
 
+      <div id="preventaBox" class="taquilla-box">
+        <div class="section-title"><strong> DATOS DE PREVENTA </strong></div>
+        <form id="preventaLogin" class="preventa-fila" style="display:none;">
+          <input type="password" id="preventaPin" placeholder="PIN de administrador" inputmode="numeric" autocomplete="current-password" required>
+          <button type="submit" class="btn-small">Conectar</button>
+        </form>
+        <div id="preventaDatos" style="display:none;">
+          <div class="preventa-fila">
+            <select id="preventaEvento" aria-label="Evento de preventa"></select>
+            <button type="button" id="btnQuitarPreventa" class="btn-small">No usar</button>
+          </div>
+          <p id="preventaResumen"></p>
+          <p id="preventaMedios" class="hint"></p>
+          <p class="hint">Se cargaron los ingresos de preventa y las personas que ingresaron con boleta (usan manilla). Estos
+            pagos no deben sumarse otra vez en Nequi, Bre-B, etc., que son solo los cobros de la puerta.</p>
+        </div>
+        <p id="preventaEstado" class="hint"></p>
+        <button type="button" id="btnCargarPreventa" class="btn-small">Cargar datos de preventa</button>
+      </div>
+
       <div class="grid">
         <div class="full-width section-title"><strong> INGRESOS Y CAJA </strong></div>
         <div><label for="cajaMenorInicial">Caja Menor Inicial (Base)</label><input type="number" id="cajaMenorInicial"
@@ -55,13 +75,16 @@
         </div>
         <div><label for="datafono">Ingresos por DATÁFONO (Neto recibido)</label><input type="number" id="datafono" value="0"
             min="0" step="1000"><span id="hintDatafono" class="hint"></span></div>
+        <div><label for="preventa">Ingresos por PREVENTA (Neto recibido)</label><input type="number" id="preventa" value="0"
+            min="0" step="1000"><span id="hintPreventa" class="hint"></span></div>
 
         <div class="full-width section-title"><strong> DATOS DE MANILLAS Y COVER </strong></div>
-        <div><label for="vendidas">Manillas vendidas</label><input type="number" id="vendidas" value="0" min="0"
-            max="500">
+        <div><label for="vendidas">Manillas vendidas en taquilla</label><input type="number" id="vendidas" value="0" min="0">
         </div>
         <div><label for="precioCover">Precio por entrada/cover</label><input type="number" id="precioCover" value="0"
             min="0" step="1000"></div>
+        <div><label for="preventaIngresaron">Personas de preventa que ingresaron</label><input type="number"
+            id="preventaIngresaron" value="0" min="0"><span class="hint">Usan manilla; su pago ya está en Preventa.</span></div>
 
         <div class="full-width section-title"><strong> OTROS DATOS </strong></div>
         <div><label for="musicos">Cantidad de músicos</label><input type="number" id="musicos" value="1" min="1"></div>
@@ -173,7 +196,8 @@
   </main> <!-- Fin app-container -->
 
   <script src="storage.js?v=6"></script>
-  <script src="script.js?v=6"></script>
+  <script src="lib/preventa-api.js?v=2"></script>
+  <script src="script.js?v=7"></script>
 </body>
 
 </html>

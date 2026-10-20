@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadConfigurationToView();
   loadHistoryToView();
   cargarDatosTaquilla();
+  initPreventa();
 
   // --- EVENT LISTENERS PRINCIPALES ---
   document.getElementById('btnCargarTaquilla')?.addEventListener('click', cargarDatosTaquilla);
@@ -28,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
 let informeCalculado = {};
 let nombreDelEvento = "";
 let datosTaquilla = null;
+let datosPreventa = null;
 
 // --- DATOS DEL PANEL DE TAQUILLA ---
 function cargarDatosTaquilla() {
@@ -74,6 +76,145 @@ function actualizarHintEfectivo() {
   const efectivo = datosTaquilla.porMedio['Efectivo'].recaudado;
   document.getElementById('hintEfectivo').textContent =
     `Taquilla: ${formatoMoneda(efectivo)} en efectivo (esperado en caja: ${formatoMoneda(getInputVal('cajaMenorInicial') + efectivo)})`;
+}
+
+// --- DATOS DE LA PREVENTA (servidor) ---
+// Requiere el PIN de administrador; se reutiliza el del Panel de Preventa si ya se ingresó en este navegador.
+const PREVENTA_EVENTO_KEY = 'mambo_preventa_evento_v1';
+
+function initPreventa() {
+  if (!window.preventaAPI) return;
+  document.getElementById('btnCargarPreventa').addEventListener('click', () => cargarEventosPreventa(true));
+  document.getElementById('preventaEvento').addEventListener('change', () => cargarDatosPreventa());
+  document.getElementById('btnQuitarPreventa').addEventListener('click', quitarPreventa);
+  document.getElementById('preventaLogin').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    window.preventaAPI.setPin(document.getElementById('preventaPin').value.trim());
+    document.getElementById('preventaPin').value = '';
+    await cargarEventosPreventa(true);
+  });
+  if (window.preventaAPI.getPin()) cargarEventosPreventa(false);
+}
+
+function estadoPreventa(mensaje, esError = false) {
+  const el = document.getElementById('preventaEstado');
+  el.textContent = mensaje;
+  el.classList.toggle('hint-warning', esError);
+}
+
+async function cargarEventosPreventa(manual) {
+  const api = window.preventaAPI;
+  if (!api.getPin()) {
+    document.getElementById('preventaLogin').style.display = 'flex';
+    document.getElementById('btnCargarPreventa').style.display = 'none';
+    estadoPreventa('Ingresa el PIN de administrador de la preventa.');
+    return;
+  }
+
+  estadoPreventa('Cargando preventa…');
+  let eventos;
+  try {
+    const { rol } = await api.llamar('login');
+    if (rol !== 'admin') {
+      api.setPin('');
+      throw Object.assign(new Error('Ese PIN es el de la puerta; se necesita el de administrador.'), { status: 403 });
+    }
+    ({ eventos } = await api.llamar('eventos'));
+  } catch (err) {
+    if (err.status === 401 || err.status === 403) {
+      api.setPin('');
+      document.getElementById('preventaLogin').style.display = 'flex';
+      document.getElementById('btnCargarPreventa').style.display = 'none';
+    }
+    // Al abrir la página, sin conexión o sin preventa configurada, no se insiste.
+    estadoPreventa(manual || err.status === 401 || err.status === 403 ? err.message : '', true);
+    return;
+  }
+
+  document.getElementById('preventaLogin').style.display = 'none';
+  if (!eventos.length) {
+    estadoPreventa('No hay eventos de preventa creados.');
+    return;
+  }
+
+  const select = document.getElementById('preventaEvento');
+  select.innerHTML = eventos.map(ev =>
+    `<option value="${ev.id}">${escaparHTML(ev.nombre)}${ev.fecha ? ' · ' + ev.fecha : ''}</option>`
+  ).join('');
+  select.value = eventoPreventaPorDefecto(eventos);
+  await cargarDatosPreventa(eventos);
+}
+
+// El último elegido en el Panel de Preventa; si no, el de hoy o el más reciente que ya pasó.
+function eventoPreventaPorDefecto(eventos) {
+  let guardado = null;
+  try { guardado = localStorage.getItem(PREVENTA_EVENTO_KEY); } catch (e) { /* sin almacenamiento */ }
+  if (eventos.some(ev => String(ev.id) === guardado)) return guardado;
+  const hoy = new Date().toLocaleDateString('en-CA');
+  const pasados = eventos.filter(ev => ev.fecha && ev.fecha <= hoy).sort((a, b) => b.fecha.localeCompare(a.fecha));
+  return String((pasados[0] || eventos[0]).id);
+}
+
+async function cargarDatosPreventa(eventos = null) {
+  const select = document.getElementById('preventaEvento');
+  const eventoId = Number(select.value);
+  let boletas;
+  try {
+    if (!eventos) ({ eventos } = await window.preventaAPI.llamar('eventos'));
+    ({ boletas } = await window.preventaAPI.llamar('boletas', { params: { evento: eventoId } }));
+  } catch (err) {
+    estadoPreventa(err.message, true);
+    return;
+  }
+
+  const evento = eventos.find(ev => ev.id === eventoId);
+  const activas = boletas.filter(b => b.estado === 'activa');
+  const porMedio = {};
+  activas.forEach(b => {
+    const medio = b.medioPago || 'Sin medio';
+    porMedio[medio] = (porMedio[medio] || 0) + b.total;
+  });
+
+  datosPreventa = {
+    eventoId,
+    evento: evento ? evento.nombre : '',
+    boletas: activas.length,
+    personas: activas.reduce((s, b) => s + b.cantidad, 0),
+    ingresaron: activas.reduce((s, b) => s + b.ingresados, 0),
+    recaudado: activas.reduce((s, b) => s + b.total, 0),
+    porMedio
+  };
+
+  setInputVal('preventa', datosPreventa.recaudado);
+  setInputVal('preventaIngresaron', datosPreventa.ingresaron);
+  if (!document.getElementById('nombreEvento').value.trim() && evento) {
+    document.getElementById('nombreEvento').value = evento.nombre;
+  }
+
+  document.getElementById('preventaResumen').innerHTML =
+    `<strong>${datosPreventa.personas}</strong> entradas vendidas en ${datosPreventa.boletas} boleta(s) · ` +
+    `<strong>${formatoMoneda(datosPreventa.recaudado)}</strong> recaudado · ` +
+    `<strong>${datosPreventa.ingresaron}</strong> ingresaron`;
+  document.getElementById('preventaMedios').textContent = Object.keys(porMedio).length
+    ? 'Por medio de pago: ' + Object.entries(porMedio).map(([m, v]) => `${m} ${formatoMoneda(v)}`).join(' · ')
+    : '';
+  document.getElementById('hintPreventa').textContent =
+    `Preventa (bruto): ${formatoMoneda(datosPreventa.recaudado)}. Si Bold u otro medio cobró comisión, ingresa lo recibido.`;
+
+  document.getElementById('preventaDatos').style.display = 'block';
+  document.getElementById('btnCargarPreventa').style.display = 'inline-block';
+  document.getElementById('btnCargarPreventa').textContent = 'Volver a cargar datos de preventa';
+  estadoPreventa('');
+}
+
+function quitarPreventa() {
+  datosPreventa = null;
+  setInputVal('preventa', 0);
+  setInputVal('preventaIngresaron', 0);
+  document.getElementById('hintPreventa').textContent = '';
+  document.getElementById('preventaDatos').style.display = 'none';
+  document.getElementById('btnCargarPreventa').textContent = 'Cargar datos de preventa';
+  estadoPreventa('El evento no incluye preventa.');
 }
 
 // --- NAVEGACIÓN ---
@@ -134,6 +275,8 @@ function calcularYGenerarInforme() {
   const ingresosDaviplata = getInputVal('daviplata');
   const ingresosNequi = getInputVal('nequi');
   const ingresosBreB = getInputVal('breb');
+  const ingresosPreventa = getInputVal('preventa');
+  const preventaIngresaron = getInputVal('preventaIngresaron');
   const manillasVendidas = getInputVal('vendidas');
   const precioCover = getInputVal('precioCover');
   const numeroMusicos = getInputVal('musicos') || 1;
@@ -149,9 +292,11 @@ function calcularYGenerarInforme() {
   const costoUnitarioManilla = config.costoPaqueteManillas / unidadesPorPaquete;
 
   const efectivoRecaudadoDelEvento = totalEfectivoContadoAlFinal - cajaMenorInicial;
-  const totalIngresosBrutosEvento = ingresosDatafono + ingresosDaviplata + ingresosNequi + ingresosBreB + efectivoRecaudadoDelEvento;
+  const totalIngresosBrutosEvento = ingresosDatafono + ingresosDaviplata + ingresosNequi + ingresosBreB + ingresosPreventa + efectivoRecaudadoDelEvento;
 
-  const gastoManillasVendidas = costoUnitarioManilla * manillasVendidas;
+  // Quienes entran con boleta de preventa también usan manilla.
+  const manillasUsadas = manillasVendidas + preventaIngresaron;
+  const gastoManillasVendidas = costoUnitarioManilla * manillasUsadas;
   const costoTotalEnsayos = config.costoEnsayo * numeroEnsayos;
   const costoTotalRodies = (config.pagoRodie || 0) * numeroRodies;
   const gastosOperativosTotales = costoTotalEnsayos + gastoManillasVendidas + costoTotalRodies;
@@ -164,7 +309,9 @@ function calcularYGenerarInforme() {
   const ingresoNetoDisponibleMusicos = ingresoDespuesReserva - montoHonorarioRecaudador;
   const honorarioPorMusico = numeroMusicos > 0 && ingresoNetoDisponibleMusicos > 0 ? ingresoNetoDisponibleMusicos / numeroMusicos : 0;
 
-  const ingresoEsperadoPorCover = manillasVendidas * precioCover;
+  // La preventa se espera por lo registrado (bruto): si llegó menos, la diferencia es la comisión.
+  const ingresoEsperadoPreventa = datosPreventa ? datosPreventa.recaudado : ingresosPreventa;
+  const ingresoEsperadoPorCover = manillasVendidas * precioCover + ingresoEsperadoPreventa;
   const diferenciaIngresoEsperadoVsReal = ingresoEsperadoPorCover - totalIngresosBrutosEvento;
 
   // Cuadre contra lo registrado en la puerta (solo si hay datos del Panel de Taquilla)
@@ -177,19 +324,25 @@ function calcularYGenerarInforme() {
     comisionDatafono: datosTaquilla.porMedio['Datáfono'].recaudado - ingresosDatafono
   } : null;
 
+  const preventa = datosPreventa ? {
+    ...datosPreventa,
+    noAsistieron: datosPreventa.personas - datosPreventa.ingresaron,
+    diferencia: datosPreventa.recaudado - ingresosPreventa
+  } : null;
+
   informeCalculado = {
     fechaCalculo: new Date().toISOString(),
     nombreDelEvento: nombreDelEvento || "Evento Sin Nombre",
     cajaMenorInicial, totalEfectivoContadoAlFinal, efectivoRecaudadoDelEvento,
-    ingresosDatafono, ingresosDaviplata, ingresosNequi, ingresosBreB,
-    manillasVendidas, precioCover, numeroMusicos, numeroRodies, numeroEnsayos,
+    ingresosDatafono, ingresosDaviplata, ingresosNequi, ingresosBreB, ingresosPreventa,
+    manillasVendidas, preventaIngresaron, manillasUsadas, ingresoEsperadoPreventa, precioCover, numeroMusicos, numeroRodies, numeroEnsayos,
     configSnapshot: { ...config },
     totalIngresosBrutosEvento,
     gastoManillasVendidas, costoTotalEnsayos, costoTotalRodies, gastosOperativosTotales, ingresoNetoOperativo,
     montoReservaBanda, ingresoDespuesReserva, montoHonorarioRecaudador,
     ingresoNetoDisponibleMusicos, honorarioPorMusico,
     ingresoEsperadoPorCover, diferenciaIngresoEsperadoVsReal,
-    taquilla
+    taquilla, preventa
   };
 
   renderizarInformeHTML();
@@ -222,11 +375,12 @@ function renderizarInformeHTML() {
     <p><strong>Daviplata:</strong> ${formatoMoneda(ic.ingresosDaviplata)}</p>
     <p><strong>Llave Bre-B:</strong> ${formatoMoneda(ic.ingresosBreB || 0)}</p>
     <p><strong>Datáfono (Neto recibido):</strong> ${formatoMoneda(ic.ingresosDatafono)}</p>
+    ${ic.ingresosPreventa ? `<p><strong>Preventa (Neto recibido):</strong> ${formatoMoneda(ic.ingresosPreventa)}</p>` : ''}
     </div>`;
 
   if (ic.precioCover > 0) {
     html += `<div class="report-section"><h3>Control de Manillas vs. Ingresos:</h3>
-    <p><strong>Ingreso Esperado (${ic.manillasVendidas} x ${formatoMoneda(ic.precioCover)}):</strong> ${formatoMoneda(ic.ingresoEsperadoPorCover)}</p>
+    <p><strong>Ingreso Esperado (${ic.manillasVendidas} x ${formatoMoneda(ic.precioCover)}${ic.ingresoEsperadoPreventa ? ` + preventa ${formatoMoneda(ic.ingresoEsperadoPreventa)}` : ''}):</strong> ${formatoMoneda(ic.ingresoEsperadoPorCover)}</p>
     <p><strong>Ingreso Real:</strong> ${formatoMoneda(ic.totalIngresosBrutosEvento)}</p>
     <p><strong>Diferencia (Esperado - Real):</strong> ${formatoMoneda(ic.diferenciaIngresoEsperadoVsReal)}</p>
     </div>`;
@@ -240,11 +394,20 @@ function renderizarInformeHTML() {
     </div>`;
   }
 
+  if (ic.preventa) {
+    html += `<div class="report-section"><h3>Preventa:</h3>
+    <p><strong>Vendidas:</strong> ${ic.preventa.personas} entradas en ${ic.preventa.boletas} boleta(s) · ${formatoMoneda(ic.preventa.recaudado)}</p>
+    <p><strong>Asistencia:</strong> ${ic.preventa.ingresaron} ingresaron · ${ic.preventa.noAsistieron} no asistieron</p>
+    <p><strong>Por medio de pago:</strong> ${Object.entries(ic.preventa.porMedio).map(([m, v]) => `${escaparHTML(m)} ${formatoMoneda(v)}`).join(' · ') || '—'}</p>
+    ${ic.preventa.diferencia ? `<p><strong>Registrado vs. recibido:</strong> ${formatoMoneda(ic.preventa.recaudado)} vs. ${formatoMoneda(ic.ingresosPreventa)} · Diferencia (comisiones): ${formatoMoneda(ic.preventa.diferencia)}</p>` : ''}
+    </div>`;
+  }
+
   html += `<div class="report-section"><h3>Resultados Financieros:</h3>
     <p class="total-emphasis"><strong>TOTAL INGRESOS BRUTOS:</strong> ${formatoMoneda(ic.totalIngresosBrutosEvento)}</p>
     <div class="expense-detail" style="font-size: 0.9em; color: #555; margin-left: 10px;">
         <p>• Sala Ensayo (${ic.numeroEnsayos} x ${formatoMoneda(ic.configSnapshot.costoEnsayo)}): ${formatoMoneda(ic.costoTotalEnsayos)}</p>
-        <p>• Costo Manillas (${ic.manillasVendidas} und): ${formatoMoneda(ic.gastoManillasVendidas)}</p>
+        <p>• Costo Manillas (${ic.manillasUsadas ?? ic.manillasVendidas} und${ic.preventaIngresaron ? `, ${ic.preventaIngresaron} de preventa` : ''}): ${formatoMoneda(ic.gastoManillasVendidas)}</p>
         ${ic.numeroRodies > 0 ? `<p>• Pago Rodie/Utilero (${ic.numeroRodies} x ${formatoMoneda(ic.configSnapshot.pagoRodie)}): ${formatoMoneda(ic.costoTotalRodies)}</p>` : ''}
     </div>
     <p><strong>Total Gastos Operativos:</strong> -${formatoMoneda(ic.gastosOperativosTotales)}</p>
@@ -362,10 +525,12 @@ function generarTextoPlanoInforme() {
   t += `Nequi: ${formatoMoneda(ic.ingresosNequi)}\n`;
   t += `Daviplata: ${formatoMoneda(ic.ingresosDaviplata)}\n`;
   t += `Llave Bre-B: ${formatoMoneda(ic.ingresosBreB || 0)}\n`;
-  t += `Datáfono (Neto recibido): ${formatoMoneda(ic.ingresosDatafono)}\n\n`;
+  t += `Datáfono (Neto recibido): ${formatoMoneda(ic.ingresosDatafono)}\n`;
+  if (ic.ingresosPreventa) t += `Preventa (Neto recibido): ${formatoMoneda(ic.ingresosPreventa)}\n`;
+  t += `\n`;
   if (ic.precioCover > 0) {
     t += `--- CONTROL DE MANILLAS ---\n`;
-    t += `Ingreso Esperado (${ic.manillasVendidas} x ${formatoMoneda(ic.precioCover)}): ${formatoMoneda(ic.ingresoEsperadoPorCover)}\n`;
+    t += `Ingreso Esperado (${ic.manillasVendidas} x ${formatoMoneda(ic.precioCover)}${ic.ingresoEsperadoPreventa ? ` + preventa ${formatoMoneda(ic.ingresoEsperadoPreventa)}` : ''}): ${formatoMoneda(ic.ingresoEsperadoPorCover)}\n`;
     t += `Diferencia (Esperado - Real): ${formatoMoneda(ic.diferenciaIngresoEsperadoVsReal)}\n\n`;
   }
   if (ic.taquilla) {
@@ -374,9 +539,16 @@ function generarTextoPlanoInforme() {
     t += `Diferencia efectivo (contado - taquilla): ${formatoMoneda(ic.taquilla.diferenciaEfectivo)}\n`;
     t += `Comisión datáfono: ${formatoMoneda(ic.taquilla.comisionDatafono)}\n\n`;
   }
+  if (ic.preventa) {
+    t += `--- PREVENTA ---\n`;
+    t += `Vendidas: ${ic.preventa.personas} entradas, ${formatoMoneda(ic.preventa.recaudado)}\n`;
+    t += `Ingresaron: ${ic.preventa.ingresaron} · No asistieron: ${ic.preventa.noAsistieron}\n`;
+    if (ic.preventa.diferencia) t += `Diferencia registrado - recibido (comisiones): ${formatoMoneda(ic.preventa.diferencia)}\n`;
+    t += `\n`;
+  }
   t += `--- GASTOS OPERATIVOS ---\n`;
   t += `Sala Ensayo (${ic.numeroEnsayos} ens): ${formatoMoneda(ic.costoTotalEnsayos)}\n`;
-  t += `Manillas (${ic.manillasVendidas} und): ${formatoMoneda(ic.gastoManillasVendidas)}\n`;
+  t += `Manillas (${ic.manillasUsadas ?? ic.manillasVendidas} und): ${formatoMoneda(ic.gastoManillasVendidas)}\n`;
   if (ic.numeroRodies > 0) {
     t += `Utileros (${ic.numeroRodies}): ${formatoMoneda(ic.costoTotalRodies)}\n`;
   }
